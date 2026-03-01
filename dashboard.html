@@ -261,6 +261,20 @@
         loadWallet(session);
       });
     })();
+    const { data } = await supabase.auth.getSession();
+const token = data?.session?.access_token;
+
+const r = await fetch("/api/investment", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${token}`
+  },
+  body: JSON.stringify({ product_id: 1 })
+});
+
+const j = await r.json();
+alert(JSON.stringify(j, null, 2));
   </script>
 </body>
   </html>
