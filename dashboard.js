@@ -190,7 +190,7 @@
         </div>
 
         <div class="pactions">
-          <button class="primary" type="button" data-invest="${p.id}">Invest Now</button>
+          <button class="primary" onclick="investonclick">Invest Now</button>
           <button type="button" data-deposit="1">Deposit</button>
         </div>
       `;
