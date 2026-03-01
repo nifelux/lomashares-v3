@@ -10,12 +10,13 @@
 <body
   data-page="dashboard"
   data-supabase-url="https://lpnnqxalmihxgszoifpa.supabase.co"
-  data-supabase-anon="data-supabase-anon="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxwbm5xeGFsbWloeGdzem9pZnBhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE3MzM1ODEsImV4cCI6MjA4NzMwOTU4MX0.1hLW5gizjcPTKyfzx_XD9dxqegtXVQroNCclX1AaqZw"
+  data-supabase-anon="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxwbm5xeGFsbWloeGdzem9pZnBhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE3MzM1ODEsImV4cCI6MjA4NzMwOTU4MX0.1hLW5gizjcPTKyfzx_XD9dxqegtXVQroNCclX1AaqZw"
 >
   <!-- Sticky Header -->
   <header class="topbar">
     <div class="left">
       <button class="icon-btn" id="refreshBtn" type="button" aria-label="Refresh">
+        <!-- refresh icon -->
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
           <path d="M20 12a8 8 0 1 1-2.34-5.66" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
           <path d="M20 4v6h-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -25,11 +26,12 @@
 
     <div class="brand">
       <div class="name">LOMASHARES</div>
-      <div class="sub">Your Investment Hub</div>
+      <div class="sub">Dashboard</div>
     </div>
 
     <div class="right">
       <button class="icon-btn" id="logoutBtn" type="button" aria-label="Logout">
+        <!-- logout icon -->
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
           <path d="M10 17l-1 0a4 4 0 0 1-4-4V11a4 4 0 0 1 4-4h1" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
           <path d="M14 7l5 5-5 5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -40,36 +42,36 @@
   </header>
 
   <main class="container">
-    <!-- Balance + user -->
+    <!-- Wallet Card -->
     <section class="card balance-card">
       <div class="balance-top">
-        <div>
+        <div class="b-left">
           <div class="balance-label">Wallet Balance</div>
           <div class="balance-amt" id="walletBalance">₦0</div>
           <div class="pmeta" id="userEmail" style="margin-top:8px;">Loading…</div>
         </div>
 
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px;">
+        <div class="b-right">
           <div class="pill">NGN Wallet</div>
-          <button class="btn secondary" type="button" id="goDepositBtn" style="height:42px;border-radius:14px;padding:0 14px;">
+          <button class="btn secondary" type="button" id="goDepositBtn">
             Deposit
           </button>
         </div>
       </div>
 
-      <div style="margin-top:12px;display:flex;gap:10px;">
-        <div style="flex:1;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.03);border-radius:16px;padding:10px 12px;">
-          <div style="font-size:11px;color:rgba(240,246,255,.55);font-weight:900;">Today</div>
-          <div style="margin-top:4px;font-weight:1100;" id="todayEarnings">₦0</div>
+      <div class="balance-stats">
+        <div class="statbox">
+          <div class="statlabel">Today</div>
+          <div class="statvalue" id="todayEarnings">₦0</div>
         </div>
-        <div style="flex:1;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.03);border-radius:16px;padding:10px 12px;">
-          <div style="font-size:11px;color:rgba(240,246,255,.55);font-weight:900;">Active Plans</div>
-          <div style="margin-top:4px;font-weight:1100;" id="activePlans">0</div>
+        <div class="statbox">
+          <div class="statlabel">Active Plans</div>
+          <div class="statvalue" id="activePlans">0</div>
         </div>
       </div>
     </section>
 
-    <!-- Quick links -->
+    <!-- Quick Links -->
     <div class="section-title">Quick Links</div>
     <section class="grid">
       <button class="qbtn" id="qlDeposit" type="button">
@@ -115,9 +117,11 @@
 
     <!-- Products -->
     <div class="section-title">Products (200% in 30 Days)</div>
-    <section class="products" id="products"></section>
+    <section class="products" id="products">
+      <!-- injected by dashboard.js -->
+    </section>
 
-    <!-- Toast / Notice -->
+    <!-- Toast -->
     <div class="notice" id="notice"></div>
   </main>
 
@@ -159,226 +163,10 @@
     </a>
   </footer>
 
-  <!-- Supabase (UMD) -->
+  <!-- Supabase UMD -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.min.js"></script>
 
-  <script>
-    (function(){
-      "use strict";
-
-      const SB_URL = document.body.getAttribute("data-supabase-url");
-      const SB_ANON = document.body.getAttribute("data-supabase-anon");
-      const notice = document.getElementById("notice");
-
-      function toast(msg){
-        notice.textContent = msg;
-        notice.classList.add("show");
-        clearTimeout(window.__toastTimer);
-        window.__toastTimer = setTimeout(()=> notice.classList.remove("show"), 3500);
-      }
-
-      function formatNaira(n){
-        return "₦" + Number(n || 0).toLocaleString("en-NG");
-      }
-
-      if(!SB_URL || !SB_ANON){
-        toast("Config error: Supabase keys missing.");
-        return;
-      }
-
-      const supabase = window.supabase.createClient(SB_URL, SB_ANON);
-
-      // Products (leave as-is)
-      const PRODUCTS = [
-        { id: 1, price: 3000 },
-        { id: 2, price: 5000 },
-        { id: 3, price: 7000 },
-        { id: 4, price: 10000 },
-        { id: 5, price: 15000 },
-        { id: 6, price: 20000 },
-        { id: 7, price: 30000 },
-        { id: 8, price: 40000 },
-        { id: 9, price: 50000 },
-        { id: 10, price: 100000 }
-      ];
-
-      async function requireSession(){
-        const { data } = await supabase.auth.getSession();
-        if(!data?.session){
-          window.location.replace("index.html");
-          return null;
-        }
-        return data.session;
-      }
-
-      function renderProducts(){
-        const wrap = document.getElementById("products");
-        wrap.innerHTML = "";
-
-        PRODUCTS.forEach(p=>{
-          const totalReturn = p.price * 2;      // 200%
-          const daily = totalReturn / 30;       // per day
-          const card = document.createElement("div");
-          card.className = "card pcard";
-          card.innerHTML = `
-            <div class="phead">
-              <div style="width:100%;">
-                <div class="ptitle">Product ${p.id}</div>
-                <div class="pmeta">
-                  <span class="price">${formatNaira(p.price)}</span><br>
-                  Daily Income: <b>${formatNaira(Math.floor(daily))}</b><br>
-                  Duration: <b>30 days</b> • Total Return: <b>${formatNaira(totalReturn)}</b>
-                </div>
-                <div class="tag">200% ROI • Automatic Daily Credit</div>
-              </div>
-            </div>
-
-            <div class="pactions">
-              <button class="primary" data-invest="${p.id}">Invest Now</button>
-              <button data-deposit="1">Deposit</button>
-            </div>
-          `;
-          wrap.appendChild(card);
-        });
-
-        // Deposit buttons
-        wrap.querySelectorAll("button[data-deposit]").forEach(btn=>{
-          btn.addEventListener("click", ()=> location.href="deposit.html");
-        });
-
-        // Invest buttons (calls /api/investment)
-        wrap.querySelectorAll("button[data-invest]").forEach(btn=>{
-          btn.addEventListener("click", async ()=>{
-            const product_id = Number(btn.getAttribute("data-invest"));
-            btn.disabled = true;
-            const oldText = btn.textContent;
-            btn.textContent = "Processing…";
-
-            try{
-              const { data } = await supabase.auth.getSession();
-              const token = data?.session?.access_token;
-              if(!token){
-                toast("Session expired. Please login again.");
-                window.location.replace("index.html");
-                return;
-              }
-
-              const r = await fetch("/api/investment", {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  "Authorization": `Bearer ${token}`
-                },
-                body: JSON.stringify({ product_id })
-              });
-
-              const j = await r.json().catch(()=> ({}));
-              if(!r.ok){
-                toast(j.error || "Investment failed.");
-                return;
-              }
-
-              if(j.ok){
-                toast(`Investment successful! Daily: ${formatNaira(j.daily_income)} for ${j.days_total} days.`);
-                await loadWallet(data.session);
-                await loadCounts(data.session);
-              } else {
-                toast(j.error || "Investment failed.");
-              }
-            }catch(e){
-              toast("Network error. Try again.");
-            }finally{
-              btn.disabled = false;
-              btn.textContent = oldText;
-            }
-          });
-        });
-      }
-
-      async function loadWallet(session){
-        try{
-          const r = await fetch("/api/wallet", {
-            method:"POST",
-            headers:{ "Content-Type":"application/json" },
-            body: JSON.stringify({ action:"get", user_id: session.user.id })
-          });
-
-          const j = await r.json().catch(()=> ({}));
-          if(!r.ok){
-            toast(j.error || "Error fetching wallet.");
-            return;
-          }
-
-          document.getElementById("walletBalance").textContent = formatNaira(j.balance);
-        }catch(e){
-          toast("Network error while fetching wallet.");
-        }
-      }
-
-      async function loadCounts(session){
-        // Optional: use Supabase to count active investments + today earnings
-        // This is UI-only; your cron pays daily automatically.
-        try{
-          const { data: invs } = await supabase
-            .from("investments")
-            .select("id,status")
-            .eq("user_id", session.user.id);
-
-          const active = (invs || []).filter(x => x.status === "active").length;
-          document.getElementById("activePlans").textContent = String(active);
-
-          // Today earnings from transactions
-          const start = new Date(); start.setHours(0,0,0,0);
-          const { data: tx } = await supabase
-            .from("transactions")
-            .select("amount,type,created_at")
-            .eq("user_id", session.user.id)
-            .eq("type", "daily_income")
-            .gte("created_at", start.toISOString());
-
-          const sum = (tx || []).reduce((a, t)=> a + Number(t.amount || 0), 0);
-          document.getElementById("todayEarnings").textContent = formatNaira(sum);
-        } catch (e) {
-          // silently ignore (dashboard still works)
-        }
-      }
-
-      async function setUser(session){
-        document.getElementById("userEmail").textContent = session.user.email || "User";
-      }
-
-      async function logout(){
-        await supabase.auth.signOut();
-        window.location.replace("index.html");
-      }
-
-      // Quick links
-      document.getElementById("qlDeposit").addEventListener("click", ()=>location.href="deposit.html");
-      document.getElementById("qlWithdraw").addEventListener("click", ()=>location.href="withdraw.html");
-      document.getElementById("qlGift").addEventListener("click", ()=>location.href="gift.html");
-      document.getElementById("qlRefer").addEventListener("click", ()=>location.href="refer.html");
-      document.getElementById("goDepositBtn").addEventListener("click", ()=>location.href="deposit.html");
-
-      // Header buttons
-      document.getElementById("logoutBtn").addEventListener("click", logout);
-      document.getElementById("refreshBtn").addEventListener("click", async ()=>{
-        const session = await requireSession();
-        if(!session) return;
-        await loadWallet(session);
-        await loadCounts(session);
-        toast("Updated.");
-      });
-
-      document.addEventListener("DOMContentLoaded", async ()=>{
-        const session = await requireSession();
-        if(!session) return;
-
-        renderProducts();
-        await setUser(session);
-        await loadWallet(session);
-        await loadCounts(session);
-      });
-    })();
-  </script>
+  <!-- Dashboard logic -->
+  <script src="dashboard.js"></script>
 </body>
   </html>
