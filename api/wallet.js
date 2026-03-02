@@ -9,23 +9,42 @@ export default async function handler(req, res) {
   try {
     const SUPABASE_URL = process.env.SUPABASE_URL;
     const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY;
 
     if (!SUPABASE_URL || !SERVICE_KEY) {
       return res.status(500).json({ error: "Missing environment variables" });
     }
 
     const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
-    const { action, user_id, amount, type } = body;
+    const { action, user_id, amount, type, email, reference, callback_url } = body;
 
-    if (!user_id) {
-      return res.status(400).json({ error: "User ID required" });
-    }
+    if (!user_id) return res.status(400).json({ error: "User ID required" });
 
     const headers = {
       apikey: SERVICE_KEY,
       Authorization: `Bearer ${SERVICE_KEY}`,
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
     };
+
+    // Helper: read wallet
+    async function getWallet() {
+      const r = await fetch(
+        `${SUPABASE_URL}/rest/v1/wallets?user_id=eq.${user_id}&select=id,balance&limit=1`,
+        { headers }
+      );
+      const data = await r.json();
+      return { r, data };
+    }
+
+    // Helper: set wallet balance
+    async function setWalletBalance(walletId, newBalance) {
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/wallets?id=eq.${walletId}`, {
+        method: "PATCH",
+        headers,
+        body: JSON.stringify({ balance: newBalance }),
+      });
+      return r.ok;
+    }
 
     // ===============================
     // GET BALANCE
@@ -37,91 +56,152 @@ export default async function handler(req, res) {
       );
 
       const data = await r.json();
-
       if (!r.ok) return res.status(500).json({ error: "Failed to fetch wallet" });
 
-      if (!data.length) {
-        return res.status(200).json({ balance: 0 });
-      }
-
+      if (!data.length) return res.status(200).json({ balance: 0 });
       return res.status(200).json({ balance: Number(data[0].balance) });
     }
 
     // ===============================
-    // CREDIT WALLET
+    // CREDIT WALLET (existing)
     // ===============================
     if (action === "credit") {
-      if (!amount || amount <= 0) {
-        return res.status(400).json({ error: "Invalid amount" });
-      }
+      if (!amount || amount <= 0) return res.status(400).json({ error: "Invalid amount" });
 
-      const current = await fetch(
-        `${SUPABASE_URL}/rest/v1/wallets?user_id=eq.${user_id}&select=id,balance&limit=1`,
-        { headers }
-      );
+      const current = await getWallet();
+      if (!current.data.length) return res.status(400).json({ error: "Wallet not found" });
 
-      const wallet = await current.json();
-
-      if (!wallet.length) {
-        return res.status(400).json({ error: "Wallet not found" });
-      }
-
-      const newBalance = Number(wallet[0].balance) + Number(amount);
-
-      await fetch(
-        `${SUPABASE_URL}/rest/v1/wallets?id=eq.${wallet[0].id}`,
-        {
-          method: "PATCH",
-          headers,
-          body: JSON.stringify({ balance: newBalance })
-        }
-      );
+      const newBalance = Number(current.data[0].balance) + Number(amount);
+      await setWalletBalance(current.data[0].id, newBalance);
 
       return res.status(200).json({ balance: newBalance });
     }
 
     // ===============================
-    // DEBIT WALLET
+    // DEBIT WALLET (existing)
     // ===============================
     if (action === "debit") {
-      if (!amount || amount <= 0) {
-        return res.status(400).json({ error: "Invalid amount" });
-      }
+      if (!amount || amount <= 0) return res.status(400).json({ error: "Invalid amount" });
 
-      const current = await fetch(
-        `${SUPABASE_URL}/rest/v1/wallets?user_id=eq.${user_id}&select=id,balance&limit=1`,
-        { headers }
-      );
+      const current = await getWallet();
+      if (!current.data.length) return res.status(400).json({ error: "Wallet not found" });
 
-      const wallet = await current.json();
-
-      if (!wallet.length) {
-        return res.status(400).json({ error: "Wallet not found" });
-      }
-
-      const currentBalance = Number(wallet[0].balance);
-
-      if (currentBalance < amount) {
-        return res.status(400).json({ error: "Insufficient balance" });
-      }
+      const currentBalance = Number(current.data[0].balance);
+      if (currentBalance < amount) return res.status(400).json({ error: "Insufficient balance" });
 
       const newBalance = currentBalance - Number(amount);
-
-      await fetch(
-        `${SUPABASE_URL}/rest/v1/wallets?id=eq.${wallet[0].id}`,
-        {
-          method: "PATCH",
-          headers,
-          body: JSON.stringify({ balance: newBalance })
-        }
-      );
+      await setWalletBalance(current.data[0].id, newBalance);
 
       return res.status(200).json({ balance: newBalance });
+    }
+
+    // ===============================
+    // PAYSTACK INIT (Redirect flow)
+    // ===============================
+    if (action === "paystack_init") {
+      if (!PAYSTACK_SECRET_KEY) return res.status(500).json({ error: "Missing PAYSTACK_SECRET_KEY" });
+      if (!email) return res.status(400).json({ error: "Email required" });
+      if (!amount || amount <= 0) return res.status(400).json({ error: "Invalid amount" });
+
+      // Where Paystack should redirect user after payment
+      // You can pass it from frontend or hardcode it in env.
+      const cb = callback_url;
+      if (!cb) return res.status(400).json({ error: "callback_url required" });
+
+      // Unique reference we control (good for matching + idempotency)
+      const ref = `LS_${user_id}_${Date.now()}`;
+
+      const initRes = await fetch("https://api.paystack.co/transaction/initialize", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${PAYSTACK_SECRET_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          amount: Math.round(Number(amount) * 100), // kobo
+          reference: ref,
+          callback_url: cb, // Paystack will append ?reference=...
+          metadata: { user_id, purpose: "wallet_deposit" },
+        }),
+      });
+
+      const initData = await initRes.json();
+      if (!initRes.ok || !initData.status) {
+        return res.status(400).json({ error: initData.message || "Paystack init failed", raw: initData });
+      }
+
+      // initData.data.authorization_url is the hosted payment link
+      return res.status(200).json({
+        authorization_url: initData.data.authorization_url,
+        reference: initData.data.reference,
+      });
+    }
+
+    // ===============================
+    // PAYSTACK VERIFY + CREDIT
+    // ===============================
+    if (action === "paystack_verify_and_credit") {
+      if (!PAYSTACK_SECRET_KEY) return res.status(500).json({ error: "Missing PAYSTACK_SECRET_KEY" });
+      if (!reference) return res.status(400).json({ error: "reference required" });
+
+      // Verify transaction server-side
+      const vRes = await fetch(
+        `https://api.paystack.co/transaction/verify/${encodeURIComponent(reference)}`,
+        { headers: { Authorization: `Bearer ${PAYSTACK_SECRET_KEY}` } }
+      );
+      const vData = await vRes.json();
+
+      if (!vRes.ok || !vData.status) {
+        return res.status(400).json({ error: vData.message || "Verification failed", raw: vData });
+      }
+
+      const tx = vData.data;
+
+      if (tx.status !== "success") return res.status(400).json({ error: "Payment not successful" });
+      if (tx.currency !== "NGN") return res.status(400).json({ error: "Currency mismatch" });
+
+      const paid = Number(tx.amount) / 100;
+
+      // Optional: if frontend sent expected amount, check it
+      if (amount && Number(paid) !== Number(amount)) {
+        return res.status(400).json({ error: `Amount mismatch. Paid ₦${paid}, expected ₦${amount}` });
+      }
+
+      // ✅ Idempotency / anti double-credit:
+      // You NEED a table to store processed references.
+      // We'll try to insert into "wallet_deposits" with unique(reference).
+      // If you don't have the table yet, create it (SQL below).
+      const insertTx = await fetch(`${SUPABASE_URL}/rest/v1/wallet_deposits`, {
+        method: "POST",
+        headers: { ...headers, Prefer: "return=representation" },
+        body: JSON.stringify({
+          user_id,
+          reference,
+          amount: paid,
+          status: "credited",
+          channel: tx.channel || "paystack",
+        }),
+      });
+
+      // If already inserted (duplicate), Supabase returns error.
+      // In that case, do NOT credit again.
+      if (!insertTx.ok) {
+        return res.status(200).json({ ok: true, already_credited: true, reference });
+      }
+
+      // Now credit wallet
+      const current = await getWallet();
+      if (!current.data.length) return res.status(400).json({ error: "Wallet not found" });
+
+      const newBalance = Number(current.data[0].balance) + Number(paid);
+      await setWalletBalance(current.data[0].id, newBalance);
+
+      return res.status(200).json({ ok: true, reference, paid, balance: newBalance });
     }
 
     return res.status(400).json({ error: "Invalid action" });
-
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
-    }
+        }
