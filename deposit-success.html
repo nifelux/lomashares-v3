@@ -1,69 +1,134 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Deposit Verification — LomaShares</title>
+  <title>LomaShares — Deposit Verification</title>
+
   <link rel="stylesheet" href="style.css" />
 
-  <script src="config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="auth.js"></script>
   <script src="auth-guard.js"></script>
 </head>
-<body>
+
+<body data-supabase-url="https://lpnnqxalmihxgszoifpa.supabase.co"
+  data-supabase-anon="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxwbm5xeGFsbWloeGdzem9pZnBhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE3MzM1ODEsImV4cCI6MjA4NzMwOTU4MX0.1hLW5gizjcPTKyfzx_XD9dxqegtXVQroNCclX1AaqZw">
+
   <main class="container">
     <section class="card mini">
-      <h2 class="h4">Verifying payment…</h2>
-      <p class="muted" id="status">Please wait.</p>
+      <h2 class="h4" id="title">Verifying Payment…</h2>
+      <p class="muted" id="status">Please wait. Do not close this page.</p>
+
+      <div class="spacer"></div>
+
+      <div class="card mini" style="border: 1px dashed var(--border);">
+        <p class="muted small"><strong>Reference:</strong> <span id="refText">—</span></p>
+        <button class="btn btn-ghost" id="copyRefBtn" type="button">Copy Reference</button>
+      </div>
+
+      <div class="spacer"></div>
+
+      <button class="btn btn-primary" id="goDashboardBtn" type="button" style="display:none;">
+        Go to Dashboard
+      </button>
     </section>
   </main>
 
   <script>
+    const titleEl = document.getElementById("title");
     const statusEl = document.getElementById("status");
+    const refTextEl = document.getElementById("refText");
+    const copyBtn = document.getElementById("copyRefBtn");
+    const goBtn = document.getElementById("goDashboardBtn");
 
-    function getUserId() {
-      const raw = localStorage.getItem("lomashares_user") || localStorage.getItem("user");
-      if (raw) {
-        try { return JSON.parse(raw)?.id || JSON.parse(raw)?.user_id || null; } catch { /* ignore */ }
-      }
-      return localStorage.getItem("user_id");
+    function getSbClient() {
+      const SB_URL = document.body.getAttribute("data-supabase-url");
+      const SB_ANON = document.body.getAttribute("data-supabase-anon");
+      return window.supabase.createClient(SB_URL, SB_ANON);
     }
+
+    async function getUserId() {
+      const supabase = getSbClient();
+      const { data, error } = await supabase.auth.getUser();
+      if (error) return null;
+      return data?.user?.id || null;
+    }
+
+    function showGoButton() {
+      goBtn.style.display = "inline-block";
+      goBtn.addEventListener("click", () => window.location.replace("dashboard.html"));
+    }
+
+    copyBtn.addEventListener("click", async () => {
+      const ref = refTextEl.textContent.trim();
+      if (!ref || ref === "—") return;
+
+      try {
+        await navigator.clipboard.writeText(ref);
+        alert("Reference copied.");
+      } catch {
+        alert(ref);
+      }
+    });
 
     (async () => {
       const params = new URLSearchParams(window.location.search);
       const reference = params.get("reference");
-      const user_id = getUserId();
 
       if (!reference) {
-        statusEl.textContent = "Missing reference. If you paid, contact support.";
+        titleEl.textContent = "Verification Failed";
+        statusEl.textContent = "Missing Paystack reference. If you paid, contact support.";
+        showGoButton();
         return;
       }
+
+      refTextEl.textContent = reference;
+
+      const user_id = await getUserId();
       if (!user_id) {
-        statusEl.textContent = "Login required. Please login and try again.";
+        titleEl.textContent = "Login Required";
+        statusEl.textContent = "Please login again, then re-open the success link if needed.";
+        showGoButton();
         return;
       }
 
-      const r = await fetch("/api/wallet", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "paystack_verify_and_credit", user_id, reference })
-      });
+      try {
+        const r = await fetch("/api/wallet", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "paystack_verify_and_credit",
+            user_id,
+            reference
+          })
+        });
 
-      const data = await r.json();
+        const data = await r.json();
 
-      if (!r.ok || data.error) {
-        statusEl.textContent = data.error || "Verification failed. Contact support.";
-        return;
+        if (!r.ok || data?.error) {
+          titleEl.textContent = "Verification Failed";
+          statusEl.textContent = data?.error || "Verification failed. Contact support with your reference.";
+          showGoButton();
+          return;
+        }
+
+        if (data.already_credited) {
+          titleEl.textContent = "Already Credited";
+          statusEl.textContent = "This payment was already credited. Redirecting to dashboard…";
+        } else {
+          titleEl.textContent = "Deposit Successful";
+          statusEl.textContent = "Payment verified and wallet credited. Redirecting to dashboard…";
+        }
+
+        setTimeout(() => window.location.replace("dashboard.html"), 1200);
+      } catch (err) {
+        console.error(err);
+        titleEl.textContent = "Network Error";
+        statusEl.textContent = "Could not verify payment due to network issue. Contact support with your reference.";
+        showGoButton();
       }
-
-      statusEl.textContent = data.already_credited
-        ? "Payment already credited. Redirecting…"
-        : "Payment verified! Wallet credited. Redirecting…";
-
-      setTimeout(() => {
-        window.location.href = "dashboard.html";
-      }, 1200);
     })();
   </script>
 </body>
-  </html>
+        </html>
