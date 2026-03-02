@@ -11,15 +11,14 @@
 
   <script src="config.js"></script>
   <script src="supabase-client.js"></script>
-
   <script src="auth.js"></script>
   <script src="auth-guard.js"></script>
 </head>
 
 <body
   data-page="deposit-success"
-  data-supabase-url="YOUR_SUPABASE_URL"
-  data-supabase-anon="YOUR_SUPABASE_ANON_KEY"
+  data-supabase-url="https://lpnnqxalmihxgszoifpa.supabase.co"
+  data-supabase-anon="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxwbm5xeGFsbWloeGdzem9pZnBhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE3MzM1ODEsImV4cCI6MjA4NzMwOTU4MX0.1hLW5gizjcPTKyfzx_XD9dxqegtXVQroNCclX1AaqZw"
 >
   <main class="container">
     <section class="card mini">
@@ -35,7 +34,9 @@
 
       <div class="spacer"></div>
 
-      <button class="btn btn-primary" id="goBtn" type="button" style="display:none;">Go to Dashboard</button>
+      <button class="btn btn-primary" id="goBtn" type="button" style="display:none;">
+        Go to Dashboard
+      </button>
     </section>
   </main>
 
@@ -46,35 +47,33 @@
     const copyBtn = document.getElementById("copyBtn");
     const goBtn = document.getElementById("goBtn");
 
-    function getSbClient() {
-      if (window.lomaSupabase) return window.lomaSupabase;
-      const SB_URL = document.body.getAttribute("data-supabase-url");
-      const SB_ANON = document.body.getAttribute("data-supabase-anon");
-      return window.supabase.createClient(SB_URL, SB_ANON);
-    }
-
-    async function getUserId() {
-      const sb = getSbClient();
-      const { data, error } = await sb.auth.getUser();
-      if (error) return null;
-      return data?.user?.id || null;
-    }
-
     function showGo() {
       goBtn.style.display = "inline-block";
       goBtn.onclick = () => window.location.replace("dashboard.html");
     }
 
+    function getSupabase() {
+      if (window.lomaSupabase) return window.lomaSupabase;
+
+      const SB_URL = document.body.getAttribute("data-supabase-url");
+      const SB_ANON = document.body.getAttribute("data-supabase-anon");
+      return window.supabase.createClient(SB_URL, SB_ANON);
+    }
+
+    const sb = getSupabase();
+
     copyBtn.addEventListener("click", async () => {
       const ref = (refEl.textContent || "").trim();
       if (!ref || ref === "—") return;
-      try {
-        await navigator.clipboard.writeText(ref);
-        alert("Reference copied.");
-      } catch {
-        alert(ref);
-      }
+      try { await navigator.clipboard.writeText(ref); alert("Reference copied."); }
+      catch { alert(ref); }
     });
+
+    async function getUser() {
+      const { data, error } = await sb.auth.getUser();
+      if (error) return null;
+      return data?.user || null;
+    }
 
     (async () => {
       const params = new URLSearchParams(window.location.search);
@@ -89,10 +88,10 @@
 
       refEl.textContent = reference;
 
-      const user_id = await getUserId();
-      if (!user_id) {
+      const user = await getUser();
+      if (!user?.id) {
         titleEl.textContent = "Login Required";
-        statusEl.textContent = "Please login again, then re-open this link if needed.";
+        statusEl.textContent = "Please login again, then retry.";
         showGo();
         return;
       }
@@ -103,7 +102,7 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             action: "paystack_verify_and_credit",
-            user_id,
+            user_id: user.id,
             reference
           })
         });
@@ -117,22 +116,17 @@
           return;
         }
 
-        if (data.already_credited) {
-          titleEl.textContent = "Already Credited";
-          statusEl.textContent = "This payment was already credited. Redirecting…";
-        } else {
-          titleEl.textContent = "Deposit Successful";
-          statusEl.textContent = "Payment verified and wallet credited. Redirecting…";
-        }
+        titleEl.textContent = data.already_credited ? "Already Credited" : "Deposit Successful";
+        statusEl.textContent = "Redirecting to dashboard…";
 
         setTimeout(() => window.location.replace("dashboard.html"), 1200);
       } catch (err) {
         console.error(err);
         titleEl.textContent = "Network Error";
-        statusEl.textContent = "Could not verify due to network issue. Contact support with your reference.";
+        statusEl.textContent = "Could not verify payment. Contact support with your reference.";
         showGo();
       }
     })();
   </script>
 </body>
-  </html>
+</html>
