@@ -40,3 +40,30 @@
 
   document.addEventListener("DOMContentLoaded", run);
 })();
+
+// auth-guard.js
+(async function () {
+  const cfg = window.LOMA_CONFIG;
+  const sb = window.lomaSupabase;
+  if (!cfg || !sb) return;
+
+  const page = (location.pathname.split("/").pop() || "").toLowerCase();
+
+  // Pages that do NOT require login
+  const publicPages = ["index.html", "register.html"];
+  const isPublic = publicPages.includes(page) || page === "";
+
+  const { data: { session } } = await sb.auth.getSession();
+
+  // If logged in and on login/register, push to dashboard
+  if (session && isPublic) {
+    location.replace(cfg.ROUTES.dashboard);
+    return;
+  }
+
+  // If not logged in and on protected pages, push to login
+  if (!session && !isPublic) {
+    location.replace(cfg.ROUTES.login);
+    return;
+  }
+})();
