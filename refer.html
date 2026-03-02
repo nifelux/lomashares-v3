@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>LomaShares — Refer</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body data-page="refer">
+  <header class="topbar">
+    <div class="left">
+      <a class="icon-btn" href="dashboard.html" aria-label="Back">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+    </div>
+    <div class="brand">
+      <div class="name">LOMASHARES</div>
+      <div class="sub">Refer & Earn</div>
+    </div>
+    <div class="right">
+      <a class="icon-btn" href="team.html" aria-label="Team">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <path d="M16 11a4 4 0 1 0-8 0" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M12 15c-4.4 0-8 2-8 4.5V21h16v-1.5C20 17 16.4 15 12 15z" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="card mini-balance">
+      <div class="row between">
+        <div>
+          <div class="muted">Wallet Balance</div>
+          <div class="amt" id="walletBalance">₦0</div>
+          <div class="pmeta" id="userEmail">Loading…</div>
+        </div>
+        <a class="btn secondary" href="team.html">My Team</a>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="section-title" style="margin:0 0 10px;">Referral Bonus</div>
+      <div class="muted">
+        Earn <b>10%</b> of your referral’s investment amount instantly when they invest successfully.
+      </div>
+
+      <div class="hr"></div>
+
+      <label class="label">Your Referral Code</label>
+      <div class="copybox">
+        <input id="refCode" class="input" value="LOMA000000" readonly />
+        <button class="btn primary small" id="copyCodeBtn" type="button">Copy</button>
+      </div>
+
+      <label class="label" style="margin-top:14px;">Your Referral Link</label>
+      <div class="copybox">
+        <input id="refLink" class="input" value="https://lomashares-v3.vercel.app/register.html?ref=LOMA000000" readonly />
+        <button class="btn ghost small" id="copyLinkBtn" type="button">Copy</button>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="row" style="gap:12px;">
+        <button class="btn secondary" id="shareWhatsApp" type="button">Share WhatsApp</button>
+        <button class="btn secondary" id="shareTelegram" type="button">Share Telegram</button>
+      </div>
+    </section>
+
+    <div class="notice" id="notice"></div>
+  </main>
+
+  <footer class="footer">
+    <a class="navitem" href="dashboard.html">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+        <path d="M4 10.5 12 4l8 6.5V20a1.5 1.5 0 0 1-1.5 1.5H5.5A1.5 1.5 0 0 1 4 20v-9.5Z" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Home<div class="dot"></div>
+    </a>
+    <a class="navitem" href="investment.html">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+        <path d="M4 19V5m0 14h16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+        <path d="M7 15l3-4 3 2 4-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Invest<div class="dot"></div>
+    </a>
+    <a class="navitem active" href="team.html">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+        <path d="M16 11a4 4 0 1 0-8 0" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+        <path d="M12 15c-4.4 0-8 2-8 4.5V21h16v-1.5C20 17 16.4 15 12 15z" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Team<div class="dot"></div>
+    </a>
+    <a class="navitem" href="profile.html">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+        <path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Z" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+        <path d="M4 21c.8-4 4.1-6 8-6s7.2 2 8 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+      </svg>
+      Profile<div class="dot"></div>
+    </a>
+  </footer>
+
+  <script src="auth-guard.js"></script>
+  <script src="wallet-balance.js"></script>
+
+  <script>
+    function toast(msg){
+      const n = document.getElementById("notice");
+      if(!n) return;
+      n.textContent = msg;
+      n.classList.add("show");
+      setTimeout(()=>n.classList.remove("show"), 2500);
+    }
+
+    async function copyText(text){
+      try{
+        await navigator.clipboard.writeText(text);
+        toast("Copied!");
+      }catch(e){
+        // fallback
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+        toast("Copied!");
+      }
+    }
+
+    // TODO: Replace with real code from your API/profile when ready.
+    const fakeRef = "LOMA123456";
+    const base = location.origin;
+    document.getElementById("refCode").value = fakeRef;
+    document.getElementById("refLink").value = `${base}/register.html?ref=${fakeRef}`;
+
+    document.getElementById("copyCodeBtn").addEventListener("click", ()=>{
+      copyText(document.getElementById("refCode").value);
+    });
+    document.getElementById("copyLinkBtn").addEventListener("click", ()=>{
+      copyText(document.getElementById("refLink").value);
+    });
+
+    document.getElementById("shareWhatsApp").addEventListener("click", ()=>{
+      const link = document.getElementById("refLink").value;
+      const msg = encodeURIComponent(`Join LomaShares and earn daily! Use my referral link: ${link}`);
+      window.open(`https://wa.me/?text=${msg}`, "_blank");
+    });
+
+    document.getElementById("shareTelegram").addEventListener("click", ()=>{
+      const link = document.getElementById("refLink").value;
+      const msg = encodeURIComponent(`Join LomaShares and earn daily! Use my referral link: ${link}`);
+      window.open(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${msg}`, "_blank");
+    });
+  </script>
+</body>
+        </html>
