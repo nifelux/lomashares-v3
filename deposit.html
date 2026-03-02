@@ -7,18 +7,23 @@
 
   <link rel="stylesheet" href="style.css" />
 
-  <!-- Supabase must load before auth.js -->
+  <!-- Supabase must load FIRST -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <!-- Your auth + guard -->
+  <!-- If you use these globally on other pages, keep the order consistent -->
+  <script src="config.js"></script>
+  <script src="supabase-client.js"></script>
+
+  <!-- Auth + Guard -->
   <script src="auth.js"></script>
   <script src="auth-guard.js"></script>
 </head>
 
-<!-- auth.js requires these attributes on body -->
-<body data-supabase-url="https://lpnnqxalmihxgszoifpa.supabase.co"
-  data-supabase-anon="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxwbm5xeGFsbWloeGdzem9pZnBhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE3MzM1ODEsImV4cCI6MjA4NzMwOTU4MX0.1hLW5gizjcPTKyfzx_XD9dxqegtXVQroNCclX1AaqZw">
-
+<body
+  data-page="deposit"
+  data-supabase-url="https://lpnnqxalmihxgszoifpa.supabase.co"
+  data-supabase-anon="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxwbm5xeGFsbWloeGdzem9pZnBhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE3MzM1ODEsImV4cCI6MjA4NzMwOTU4MX0.1hLW5gizjcPTKyfzx_XD9dxqegtXVQroNCclX1AaqZw"
+>
   <header class="topbar">
     <div class="topbar-left">
       <a class="brand" href="dashboard.html">LomaShares</a>
@@ -38,16 +43,16 @@
     <section class="card">
       <div class="card-head">
         <h1 class="h3">Deposit Funds</h1>
-        <p class="muted">You will be redirected to Paystack to complete payment, then returned to LomaShares automatically.</p>
+        <p class="muted">You’ll be redirected to Paystack to pay. After payment, Paystack returns you to LomaShares automatically.</p>
       </div>
 
       <div class="grid-2">
-        <!-- Left: Balance + Form -->
+        <!-- LEFT -->
         <div>
           <div class="card mini">
             <h3 class="h4">Wallet Balance</h3>
             <div class="big-number" id="balanceText">₦0</div>
-            <p class="muted small" id="userText">Loading…</p>
+            <p class="muted small" id="userText">Loading user…</p>
           </div>
 
           <div class="spacer"></div>
@@ -64,32 +69,18 @@
             <button class="btn btn-primary" id="depositBtn" type="submit">Continue to Paystack</button>
 
             <div id="msg" class="msg" style="display:none;"></div>
-
-            <p class="muted small">
-              If Paystack completes payment, you will return to a verification page.
-            </p>
           </form>
         </div>
 
-        <!-- Right: Instructions -->
+        <!-- RIGHT -->
         <div>
           <div class="card mini">
-            <h3 class="h4">How it works</h3>
+            <h3 class="h4">Notes</h3>
             <div class="muted">
-              <p>1) Enter your email and amount.</p>
-              <p>2) Click <strong>Continue to Paystack</strong>.</p>
-              <p>3) Pay on Paystack.</p>
-              <p>4) Paystack redirects back to <strong>Deposit Success</strong> page.</p>
-              <p>5) Your wallet is credited after verification.</p>
+              <p>• Paystack will redirect you back with a <strong>reference</strong>.</p>
+              <p>• The return page verifies payment and credits your wallet.</p>
+              <p>• If verification fails, copy the reference and contact admin.</p>
             </div>
-
-            <div class="spacer"></div>
-
-            <h3 class="h4">Troubleshooting</h3>
-            <p class="muted small">
-              If payment succeeds but wallet doesn’t update, it usually means verification failed.
-              Contact support with your Paystack <strong>reference</strong> shown on the success page.
-            </p>
           </div>
         </div>
       </div>
@@ -112,15 +103,25 @@
       el.textContent = "";
     }
 
+    function money(n) {
+      const num = Number(n);
+      if (Number.isNaN(num)) return "₦0";
+      return "₦" + num.toLocaleString("en-NG");
+    }
+
     function getSbClient() {
+      // Prefer your global client if supabase-client.js provides it
+      if (window.lomaSupabase) return window.lomaSupabase;
+
+      // Fallback: create client like auth.js does
       const SB_URL = document.body.getAttribute("data-supabase-url");
       const SB_ANON = document.body.getAttribute("data-supabase-anon");
       return window.supabase.createClient(SB_URL, SB_ANON);
     }
 
     async function getUserId() {
-      const supabase = getSbClient();
-      const { data, error } = await supabase.auth.getUser();
+      const sb = getSbClient();
+      const { data, error } = await sb.auth.getUser();
       if (error) return null;
       return data?.user?.id || null;
     }
@@ -134,37 +135,25 @@
         });
         const data = await r.json();
         if (!r.ok || data?.error) return;
-        $("balanceText").textContent = formatMoney(data.balance ?? 0);
-      } catch {
-        // ignore
-      }
+        $("balanceText").textContent = money(data.balance ?? 0);
+      } catch {}
     }
 
-    function formatMoney(n) {
-      const num = Number(n);
-      if (Number.isNaN(num)) return "₦0";
-      return "₦" + num.toLocaleString("en-NG");
-    }
-
-    // Logout
+    // Logout uses your auth.js exposed function
     $("logoutBtn").addEventListener("click", () => {
       if (window.lomaLogout) window.lomaLogout();
       else window.location.replace("index.html");
     });
 
-    // Initialize page
+    // Init display
     (async () => {
       const user_id = await getUserId();
-      if (!user_id) {
-        // auth-guard should handle redirect, but safety:
-        window.location.replace("index.html");
-        return;
-      }
+      if (!user_id) return; // auth-guard will redirect anyway
       $("userText").textContent = `User ID: ${user_id}`;
       await loadBalance(user_id);
     })();
 
-    // Deposit => init => redirect
+    // Submit => init Paystack => redirect
     $("depositForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       hideMsg();
@@ -176,14 +165,12 @@
       if (!amount || amount < 100) return showMsg("Minimum deposit is ₦100.");
 
       const user_id = await getUserId();
-      if (!user_id) {
-        window.location.replace("index.html");
-        return;
-      }
+      if (!user_id) return window.location.replace("index.html");
 
       $("depositBtn").disabled = true;
       $("depositBtn").textContent = "Redirecting…";
 
+      // Paystack returns here after payment:
       const callback_url = `${window.location.origin}/deposit-success.html`;
 
       try {
@@ -204,13 +191,13 @@
         if (!r.ok || data?.error) {
           $("depositBtn").disabled = false;
           $("depositBtn").textContent = "Continue to Paystack";
-          return showMsg(data?.error || "Failed to start Paystack deposit.");
+          return showMsg(data?.error || "Failed to initialize Paystack.");
         }
 
         if (!data.authorization_url) {
           $("depositBtn").disabled = false;
           $("depositBtn").textContent = "Continue to Paystack";
-          return showMsg("Missing Paystack authorization url from server.");
+          return showMsg("Server did not return Paystack authorization_url.");
         }
 
         window.location.href = data.authorization_url;
@@ -218,7 +205,7 @@
         console.error(err);
         $("depositBtn").disabled = false;
         $("depositBtn").textContent = "Continue to Paystack";
-        showMsg("Network error. Please try again.");
+        showMsg("Network error. Try again.");
       }
     });
   </script>
