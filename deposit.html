@@ -1,1 +1,83 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LomaShares — Deposit</title>
+  <link rel="stylesheet" href="style.css" />
 
+  <!-- Top scripts -->
+  <script src="config.js"></script>
+  <script src="auth.js"></script>
+  <script src="auth-guard.js"></script>
+</head>
+<body>
+  <main class="container">
+    <section class="card mini">
+      <h2 class="h4">Deposit</h2>
+
+      <label class="label">Email</label>
+      <input class="input" id="email" type="email" placeholder="you@email.com" required />
+
+      <label class="label">Amount (₦)</label>
+      <input class="input" id="amount" type="number" min="100" step="50" placeholder="5000" required />
+
+      <button class="btn btn-primary" id="depositBtn" type="button">Continue to Paystack</button>
+
+      <div id="msg" class="msg" style="display:none;"></div>
+    </section>
+  </main>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    function showMsg(text, type="error") {
+      const el = $("msg");
+      el.style.display = "block";
+      el.className = `msg ${type}`;
+      el.textContent = text;
+    }
+
+    function getUserId() {
+      const raw = localStorage.getItem("lomashares_user") || localStorage.getItem("user");
+      if (raw) {
+        try { return JSON.parse(raw)?.id || JSON.parse(raw)?.user_id || null; } catch { /* ignore */ }
+      }
+      return localStorage.getItem("user_id");
+    }
+
+    $("depositBtn").addEventListener("click", async () => {
+      const email = $("email").value.trim();
+      const amount = Number($("amount").value || 0);
+      const user_id = getUserId();
+
+      if (!user_id) return showMsg("Login required.");
+      if (!email) return showMsg("Email required.");
+      if (!amount || amount < 100) return showMsg("Minimum ₦100.");
+
+      $("depositBtn").disabled = true;
+      $("depositBtn").textContent = "Redirecting…";
+
+      // Callback page that will verify and then return user to dashboard
+      const callback_url = `${window.location.origin}/deposit-success.html`;
+
+      const r = await fetch("/api/wallet", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "paystack_init", user_id, email, amount, callback_url })
+      });
+
+      const data = await r.json();
+
+      if (!r.ok || data.error) {
+        $("depositBtn").disabled = false;
+        $("depositBtn").textContent = "Continue to Paystack";
+        return showMsg(data.error || "Failed to start deposit.");
+      }
+
+      // Redirect to Paystack hosted checkout link
+      window.location.href = data.authorization_url;
+    });
+  </script>
+</body>
+                                  </html>
