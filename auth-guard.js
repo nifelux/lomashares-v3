@@ -1,15 +1,15 @@
 // auth-guard.js
 (async function () {
-  const cfg = window.LOMA_CONFIG;
-  const sb = window.lomaSupabase;
-  if (!cfg || !sb) return;
+  "use strict";
 
-  const page = (location.pathname.split("/").pop() || "").toLowerCase();
-  const publicPages = ["index.html", "register.html"];
-  const isPublic = publicPages.includes(page) || page === "";
+  if (!window.sb) return;
 
-  const { data: { session } } = await sb.auth.getSession();
+  const { data, error } = await window.sb.auth.getSession();
+  if (error) console.warn(error);
 
-  if (session && isPublic) return location.replace(cfg.ROUTES.dashboard);
-  if (!session && !isPublic) return location.replace(cfg.ROUTES.login);
+  const session = data?.session;
+  if (!session) {
+    // change this to your login page
+    window.location.href = "login.html";
+  }
 })();
