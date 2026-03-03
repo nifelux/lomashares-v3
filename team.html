@@ -1,110 +1,127 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>LomaShares — Team</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>LomaShares • Team</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
+<body>
+  <div class="app">
 
-<body data-page="team">
-  <header class="topbar">
-    <div class="left">
-      <a class="icon-btn" href="dashboard.html" aria-label="Back">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </a>
-    </div>
-    <div class="brand">
-      <div class="name">LOMASHARES</div>
-      <div class="sub">Team</div>
-    </div>
-    <div class="right">
-      <a class="icon-btn" href="refer.html" aria-label="Refer">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <path d="M16 11a4 4 0 1 0-8 0" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-          <path d="M12 15c-4.4 0-8 2-8 4.5V21h16v-1.5C20 17 16.4 15 12 15z" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </a>
-    </div>
-  </header>
-
-  <main class="container">
-    <section class="card mini-balance">
-      <div class="row between">
-        <div>
-          <div class="muted">Wallet Balance</div>
-          <div class="amt" id="walletBalance">₦0</div>
-          <div class="pmeta" id="userEmail">Loading…</div>
+    <!-- Header -->
+    <header class="header">
+      <div class="header-inner">
+        <div class="header-left">
+          <a class="icon-btn" href="dashboard.html" aria-label="Back">
+            <svg class="navicon" viewBox="0 0 24 24" fill="none">
+              <path d="M15 18l-6-6 6-6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
         </div>
-        <a class="btn secondary" href="refer.html">Refer</a>
+
+        <div class="brand">
+          <div class="brand-badge"></div>
+          <div class="brand-name">LOMASHARES</div>
+        </div>
+
+        <div class="header-right">
+          <a class="icon-btn" href="refer.html" aria-label="Refer">
+            <svg class="navicon" viewBox="0 0 24 24" fill="none">
+              <path d="M14 9l-4 6" stroke="white" stroke-width="2" stroke-linecap="round"/>
+              <path d="M16.5 7.5a2.5 2.5 0 1 0 0 .01" stroke="white" stroke-width="2" stroke-linecap="round"/>
+              <path d="M7.5 16.5a2.5 2.5 0 1 0 0 .01" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <section class="section">
+      <div class="card">
+        <div class="kpi">
+          <div>
+            <div class="label">Your Wallet</div>
+            <div class="value" id="walletBalance">₦0</div>
+            <div class="sub" style="margin-top:6px">Referral bonus is credited when your referrals invest.</div>
+          </div>
+          <div class="pill">Team</div>
+        </div>
       </div>
     </section>
 
-    <div class="section-title">Team Overview</div>
-    <section class="grid2">
-      <div class="card statcard">
-        <div class="muted">Total Referrals</div>
-        <div class="big" id="teamTotal">0</div>
-      </div>
-      <div class="card statcard">
-        <div class="muted">Referral Bonus</div>
-        <div class="big" id="teamBonus">₦0</div>
-      </div>
-    </section>
+    <section class="section">
+      <div class="h1">Team Summary</div>
+      <div class="sub">Track your referrals and rewards.</div>
 
-    <div class="section-title">Recent Referrals</div>
-    <section class="card">
+      <div class="card" style="margin-top:12px">
+        <div class="kpi">
+          <div>
+            <div class="label">Total Referrals</div>
+            <div class="value" id="teamTotal">0</div>
+          </div>
+          <div>
+            <div class="label">Total Bonus</div>
+            <div class="value" id="teamBonus">₦0</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="h1" style="margin-top:14px">Referral List</div>
       <div class="list" id="teamList">
         <div class="empty">
-          <div class="empty-title">No referrals yet</div>
-          <div class="empty-sub">Share your referral link to start earning 10% bonus.</div>
+          <div class="empty-title">Loading...</div>
+          <div class="empty-sub">Fetching your team members.</div>
         </div>
       </div>
     </section>
-  </main>
+  </div>
 
+  <!-- Footer -->
   <footer class="footer">
-    <a class="navitem" href="dashboard.html">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <path d="M4 10.5 12 4l8 6.5V20a1.5 1.5 0 0 1-1.5 1.5H5.5A1.5 1.5 0 0 1 4 20v-9.5Z" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      Home<div class="dot"></div>
-    </a>
-    <a class="navitem" href="investment.html">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <path d="M4 19V5m0 14h16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-        <path d="M7 15l3-4 3 2 4-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      Invest<div class="dot"></div>
-    </a>
-    <a class="navitem active" href="team.html">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <path d="M16 11a4 4 0 1 0-8 0" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-        <path d="M12 15c-4.4 0-8 2-8 4.5V21h16v-1.5C20 17 16.4 15 12 15z" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      Team<div class="dot"></div>
-    </a>
-    <a class="navitem" href="profile.html">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Z" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-        <path d="M4 21c.8-4 4.1-6 8-6s7.2 2 8 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-      </svg>
-      Profile<div class="dot"></div>
-    </a>
+    <div class="footer-inner">
+      <a class="navbtn" href="dashboard.html">
+        <svg class="navicon" viewBox="0 0 24 24" fill="none">
+          <path d="M3 10.5 12 3l9 7.5V21a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V10.5Z" stroke="white" stroke-width="2" stroke-linejoin="round"/>
+        </svg>
+        <div>Home</div>
+      </a>
+
+      <a class="navbtn" href="investment.html">
+        <svg class="navicon" viewBox="0 0 24 24" fill="none">
+          <path d="M4 19V5M4 19h16M8 16V9M12 16V7M16 16v-4" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <div>Invest</div>
+      </a>
+
+      <a class="navbtn active" href="team.html">
+        <svg class="navicon" viewBox="0 0 24 24" fill="none">
+          <path d="M17 21a5 5 0 0 0-10 0" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <path d="M12 11a4 4 0 1 0-4-4 4 4 0 0 0 4 4Z" stroke="white" stroke-width="2"/>
+          <path d="M20 21a4 4 0 0 0-5-3.87" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <path d="M17 7a3 3 0 1 0 0-6" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <div>Team</div>
+      </a>
+
+      <a class="navbtn" href="profile.html">
+        <svg class="navicon" viewBox="0 0 24 24" fill="none">
+          <path d="M20 21a8 8 0 0 0-16 0" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <path d="M12 11a4 4 0 1 0-4-4 4 4 0 0 0 4 4Z" stroke="white" stroke-width="2"/>
+        </svg>
+        <div>Profile</div>
+      </a>
+    </div>
   </footer>
 
+  <div class="toast" id="notice">...</div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="config.js"></script>
+  <script src="supabase-client.js"></script>
   <script src="auth-guard.js"></script>
   <script src="wallet-balance.js"></script>
-
-  <script>
-    function money(n){ return "₦" + Number(n).toLocaleString(); }
-
-    // Hook points (later load from /api/referrals or /api/team)
-    // For now, keep UI ready.
-    document.getElementById("teamTotal").textContent = "0";
-    document.getElementById("teamBonus").textContent = money(0);
-  </script>
+  <script src="team.js"></script>
 </body>
-            </html>
+      </html>
