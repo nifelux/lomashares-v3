@@ -1,135 +1,121 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>LomaShares — Gift Code</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>LomaShares • Gift Code</title>
   <link rel="stylesheet" href="style.css" />
 </head>
+<body>
+  <div class="app">
 
-<body data-page="gift">
-  <header class="topbar">
-    <div class="left">
-      <a class="icon-btn" href="dashboard.html" aria-label="Back">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </a>
-    </div>
-    <div class="brand">
-      <div class="name">LOMASHARES</div>
-      <div class="sub">Gift Code</div>
-    </div>
-    <div class="right">
-      <a class="icon-btn" href="deposit.html" aria-label="Deposit">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-        </svg>
-      </a>
-    </div>
-  </header>
-
-  <main class="container">
-    <section class="card mini-balance">
-      <div class="row between">
-        <div>
-          <div class="muted">Wallet Balance</div>
-          <div class="amt" id="walletBalance">₦0</div>
-          <div class="pmeta" id="userEmail">Loading…</div>
+    <!-- Header -->
+    <header class="header">
+      <div class="header-inner">
+        <div class="header-left">
+          <a class="icon-btn" href="dashboard.html" aria-label="Back">
+            <svg class="navicon" viewBox="0 0 24 24" fill="none">
+              <path d="M15 18l-6-6 6-6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
         </div>
-        <a class="btn secondary" href="dashboard.html">Home</a>
+
+        <div class="brand">
+          <div class="brand-badge"></div>
+          <div class="brand-name">LOMASHARES</div>
+        </div>
+
+        <div class="header-right">
+          <a class="icon-btn" href="refer.html" aria-label="Refer">
+            <svg class="navicon" viewBox="0 0 24 24" fill="none">
+              <path d="M14 9l-4 6" stroke="white" stroke-width="2" stroke-linecap="round"/>
+              <path d="M16.5 7.5a2.5 2.5 0 1 0 0 .01" stroke="white" stroke-width="2" stroke-linecap="round"/>
+              <path d="M7.5 16.5a2.5 2.5 0 1 0 0 .01" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <section class="section">
+      <div class="card">
+        <div class="kpi">
+          <div>
+            <div class="label">Available Balance</div>
+            <div class="value" id="walletBalance">₦0</div>
+            <div class="sub" style="margin-top:6px">
+              Gift codes are <b>one-time use</b>. Redeem to credit your wallet instantly.
+            </div>
+          </div>
+          <div class="pill" style="border-color:rgba(212,175,55,.35); background:rgba(212,175,55,.10); color:#FFECC0;">Gift</div>
+        </div>
       </div>
     </section>
 
-    <section class="card">
-      <div class="section-title" style="margin:0 0 10px;">Redeem Gift Code</div>
-      <div class="muted">
-        Enter a valid one-time gift code to credit your wallet instantly.
+    <section class="section">
+      <div class="h1">Redeem Gift Code</div>
+      <div class="sub">Enter your code below and redeem.</div>
+
+      <div class="card" style="margin-top:12px">
+        <input class="input" id="giftCode" placeholder="Enter gift code e.g LOMA123456" />
+        <button class="btn primary" id="redeemBtn" type="button" style="width:100%; margin-top:12px">Redeem</button>
       </div>
 
-      <div class="hr"></div>
-
-      <label class="label">Gift Code</label>
-      <input class="input" id="giftCode" placeholder="e.g. LOMA-GIFT-1234" autocomplete="off" />
-
-      <button class="btn primary" id="redeemBtn" type="button" style="margin-top:14px;">
-        Redeem Code
-      </button>
-
-      <div class="muted" style="margin-top:12px;">
-        Tip: Gift codes are one-time use. If it has been redeemed, it cannot be used again.
-      </div>
-    </section>
-
-    <div class="section-title">Gift History</div>
-    <section class="card">
+      <div class="h1" style="margin-top:14px">Gift History</div>
       <div class="list" id="giftHistory">
         <div class="empty">
-          <div class="empty-title">No gift history</div>
-          <div class="empty-sub">Redeemed gift codes will show here.</div>
+          <div class="empty-title">Loading...</div>
+          <div class="empty-sub">Your redeemed gift codes will show here.</div>
         </div>
       </div>
     </section>
+  </div>
 
-    <div class="notice" id="notice"></div>
-  </main>
-
+  <!-- Footer -->
   <footer class="footer">
-    <a class="navitem" href="dashboard.html">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <path d="M4 10.5 12 4l8 6.5V20a1.5 1.5 0 0 1-1.5 1.5H5.5A1.5 1.5 0 0 1 4 20v-9.5Z" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      Home<div class="dot"></div>
-    </a>
-    <a class="navitem" href="investment.html">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <path d="M4 19V5m0 14h16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-        <path d="M7 15l3-4 3 2 4-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      Invest<div class="dot"></div>
-    </a>
-    <a class="navitem" href="team.html">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <path d="M16 11a4 4 0 1 0-8 0" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-        <path d="M12 15c-4.4 0-8 2-8 4.5V21h16v-1.5C20 17 16.4 15 12 15z" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      Team<div class="dot"></div>
-    </a>
-    <a class="navitem" href="profile.html">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Z" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-        <path d="M4 21c.8-4 4.1-6 8-6s7.2 2 8 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-      </svg>
-      Profile<div class="dot"></div>
-    </a>
+    <div class="footer-inner">
+      <a class="navbtn" href="dashboard.html">
+        <svg class="navicon" viewBox="0 0 24 24" fill="none">
+          <path d="M3 10.5 12 3l9 7.5V21a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V10.5Z" stroke="white" stroke-width="2" stroke-linejoin="round"/>
+        </svg>
+        <div>Home</div>
+      </a>
+
+      <a class="navbtn" href="investment.html">
+        <svg class="navicon" viewBox="0 0 24 24" fill="none">
+          <path d="M4 19V5M4 19h16M8 16V9M12 16V7M16 16v-4" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <div>Invest</div>
+      </a>
+
+      <a class="navbtn" href="team.html">
+        <svg class="navicon" viewBox="0 0 24 24" fill="none">
+          <path d="M17 21a5 5 0 0 0-10 0" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <path d="M12 11a4 4 0 1 0-4-4 4 4 0 0 0 4 4Z" stroke="white" stroke-width="2"/>
+          <path d="M20 21a4 4 0 0 0-5-3.87" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <path d="M17 7a3 3 0 1 0 0-6" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <div>Team</div>
+      </a>
+
+      <a class="navbtn" href="profile.html">
+        <svg class="navicon" viewBox="0 0 24 24" fill="none">
+          <path d="M20 21a8 8 0 0 0-16 0" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <path d="M12 11a4 4 0 1 0-4-4 4 4 0 0 0 4 4Z" stroke="white" stroke-width="2"/>
+        </svg>
+        <div>Profile</div>
+      </a>
+    </div>
   </footer>
 
+  <div class="toast" id="notice">...</div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="config.js"></script>
+  <script src="supabase-client.js"></script>
   <script src="auth-guard.js"></script>
   <script src="wallet-balance.js"></script>
-
-  <script>
-    function toast(msg){
-      const n = document.getElementById("notice");
-      if(!n) return;
-      n.textContent = msg;
-      n.classList.add("show");
-      setTimeout(()=>n.classList.remove("show"), 2600);
-    }
-
-    document.getElementById("redeemBtn").addEventListener("click", async ()=>{
-      const code = document.getElementById("giftCode").value.trim();
-      if(!code){
-        toast("Please enter a gift code.");
-        return;
-      }
-
-      // Hook: connect to /api/gift (later)
-      // Example:
-      // const res = await fetch('/api/gift', {method:'POST', headers:{...}, body:JSON.stringify({code})})
-      // const data = await res.json()
-
-      alert("Gift API will be connected here. Code: " + code);
-    });
-  </script>
+  <script src="gift.js"></script>
 </body>
-        </html>
+  </html>
