@@ -1,11 +1,15 @@
 // supabase-client.js
 (function () {
-  const cfg = window.LOMA_CONFIG;
-  if (!cfg?.SUPABASE_URL || !cfg?.SUPABASE_ANON_KEY) {
-    console.error("LOMA: Missing config.js values");
+  "use strict";
+
+  const cfg = window.APP_CONFIG || {};
+  const url = cfg.SUPABASE_URL;
+  const anon = cfg.SUPABASE_ANON_KEY;
+
+  if (!url || !anon) {
+    console.warn("Missing SUPABASE_URL or SUPABASE_ANON_KEY in config.js");
     return;
   }
-  window.lomaSupabase = supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY, {
-    auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
-  });
+
+  window.sb = window.supabase.createClient(url, anon);
 })();
