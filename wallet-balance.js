@@ -5,22 +5,20 @@
 
   const emailEl = document.getElementById("userEmail");
   const balanceEl = document.getElementById("walletBalance");
-
-  function money(n) {
-    return "₦" + Number(n || 0).toLocaleString();
-  }
+  const money = (n) => "₦" + Number(n || 0).toLocaleString();
 
   try {
     const { data: { session } } = await sb.auth.getSession();
     if (!session) return;
 
-    const email = session.user?.email || "";
+    const user_id = session.user.id;
+    const email = session.user.email || "";
     if (emailEl) emailEl.textContent = email;
 
-    // Call Wallet API (must accept Bearer token)
     const res = await fetch("/api/wallet", {
-      method: "GET",
-      headers: { "Authorization": `Bearer ${session.access_token}` }
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "get", user_id })
     });
 
     const data = await res.json();
@@ -31,8 +29,7 @@
     }
 
     if (balanceEl) balanceEl.textContent = money(data.balance);
-
   } catch (e) {
-    console.error("wallet-balance.js error:", e);
+    console.error("wallet-balance.js:", e);
   }
 })();
