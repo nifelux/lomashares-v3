@@ -1,189 +1,128 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>LomaShares — Invest</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>LomaShares • Investment</title>
   <link rel="stylesheet" href="style.css" />
 </head>
+<body>
+  <div class="app">
 
-<body data-page="investment">
-  <!-- Topbar -->
-  <header class="topbar">
-    <div class="left">
-      <a class="icon-btn" href="dashboard.html" aria-label="Back">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </a>
-    </div>
-
-    <div class="brand">
-      <div class="name">LOMASHARES</div>
-      <div class="sub">Investment</div>
-    </div>
-
-    <div class="right">
-      <a class="icon-btn" href="deposit.html" aria-label="Deposit">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-        </svg>
-      </a>
-    </div>
-  </header>
-
-  <main class="container">
-    <!-- Wallet bar -->
-    <section class="card mini-balance">
-      <div class="row between">
-        <div>
-          <div class="muted">Wallet Balance</div>
-          <div class="amt" id="walletBalance">₦0</div>
-          <div class="pmeta" id="userEmail">Loading…</div>
+    <!-- Header -->
+    <header class="header">
+      <div class="header-inner">
+        <div class="header-left">
+          <a class="icon-btn" href="dashboard.html" aria-label="Back">
+            <!-- left arrow -->
+            <svg class="navicon" viewBox="0 0 24 24" fill="none">
+              <path d="M15 18l-6-6 6-6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
         </div>
-        <a class="btn secondary" href="deposit.html">Deposit</a>
+
+        <div class="brand">
+          <div class="brand-badge"></div>
+          <div class="brand-name">LOMASHARES</div>
+        </div>
+
+        <div class="header-right">
+          <a class="icon-btn" href="profile.html" aria-label="Profile">
+            <!-- user icon -->
+            <svg class="navicon" viewBox="0 0 24 24" fill="none">
+              <path d="M20 21a8 8 0 0 0-16 0" stroke="white" stroke-width="2" stroke-linecap="round"/>
+              <path d="M12 11a4 4 0 1 0-4-4 4 4 0 0 0 4 4Z" stroke="white" stroke-width="2"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <!-- Wallet card -->
+    <section class="section">
+      <div class="card">
+        <div class="kpi">
+          <div>
+            <div class="label">Available Balance</div>
+            <div class="value" id="walletBalance">₦0</div>
+            <div class="sub" style="margin-top:6px">
+              Earn daily automatically. Investment duration: <b>30 days</b>. Total return: <b>200%</b>.
+            </div>
+          </div>
+          <div class="pill">Secure</div>
+        </div>
       </div>
     </section>
 
-    <!-- Active Investments -->
-    <div class="section-title">Active Investments</div>
-    <section class="card">
-      <div class="muted">Your running plans will appear here.</div>
+    <!-- Active investments section (optional if you later add API list) -->
+    <section class="section">
+      <div class="h1">Your Active Investments</div>
+      <div class="sub">Your running plans will appear here.</div>
 
       <div class="list" id="activeInvestments">
-        <!-- JS inject -->
         <div class="empty">
-          <div class="empty-title">No active investment yet</div>
-          <div class="empty-sub">Choose a product below to start earning daily.</div>
+          <div class="empty-title">Loading...</div>
+          <div class="empty-sub">Fetching your active investments.</div>
         </div>
       </div>
     </section>
 
-    <!-- Products -->
-    <div class="section-title">Products (200% in 30 Days)</div>
+    <!-- Products grid -->
+    <section class="section">
+      <div class="h1">Choose a Plan</div>
+      <div class="sub">Each plan can be purchased <b>twice lifetime</b>. Daily income is credited every 24 hours.</div>
 
-    <section class="products" id="productsGrid">
-      <!-- Cards injected by JS below -->
+      <div class="grid" id="productsGrid">
+        <!-- investment.js renders cards here -->
+      </div>
     </section>
-
-    <div class="notice" id="notice"></div>
-  </main>
+  </div>
 
   <!-- Footer -->
   <footer class="footer">
-    <a class="navitem" href="dashboard.html">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <path d="M4 10.5 12 4l8 6.5V20a1.5 1.5 0 0 1-1.5 1.5H5.5A1.5 1.5 0 0 1 4 20v-9.5Z" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      Home
-      <div class="dot"></div>
-    </a>
+    <div class="footer-inner">
+      <a class="navbtn" href="dashboard.html">
+        <svg class="navicon" viewBox="0 0 24 24" fill="none">
+          <path d="M3 10.5 12 3l9 7.5V21a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V10.5Z" stroke="white" stroke-width="2" stroke-linejoin="round"/>
+        </svg>
+        <div>Home</div>
+      </a>
 
-    <a class="navitem active" href="investment.html">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <path d="M4 19V5m0 14h16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-        <path d="M7 15l3-4 3 2 4-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      Invest
-      <div class="dot"></div>
-    </a>
+      <a class="navbtn active" href="investment.html">
+        <svg class="navicon" viewBox="0 0 24 24" fill="none">
+          <path d="M4 19V5M4 19h16M8 16V9M12 16V7M16 16v-4" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <div>Invest</div>
+      </a>
 
-    <a class="navitem" href="team.html">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <path d="M16 11a4 4 0 1 0-8 0" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-        <path d="M12 15c-4.4 0-8 2-8 4.5V21h16v-1.5C20 17 16.4 15 12 15z" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      Team
-      <div class="dot"></div>
-    </a>
+      <a class="navbtn" href="team.html">
+        <svg class="navicon" viewBox="0 0 24 24" fill="none">
+          <path d="M17 21a5 5 0 0 0-10 0" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <path d="M12 11a4 4 0 1 0-4-4 4 4 0 0 0 4 4Z" stroke="white" stroke-width="2"/>
+          <path d="M20 21a4 4 0 0 0-5-3.87" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <path d="M17 7a3 3 0 1 0 0-6" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <div>Team</div>
+      </a>
 
-    <a class="navitem" href="profile.html">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Z" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-        <path d="M4 21c.8-4 4.1-6 8-6s7.2 2 8 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-      </svg>
-      Profile
-      <div class="dot"></div>
-    </a>
+      <a class="navbtn" href="profile.html">
+        <svg class="navicon" viewBox="0 0 24 24" fill="none">
+          <path d="M20 21a8 8 0 0 0-16 0" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <path d="M12 11a4 4 0 1 0-4-4 4 4 0 0 0 4 4Z" stroke="white" stroke-width="2"/>
+        </svg>
+        <div>Profile</div>
+      </a>
+    </div>
   </footer>
 
-  <!-- MUST on every page -->
+  <div class="toast" id="notice">...</div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="config.js"></script>
+  <script src="supabase-client.js"></script>
   <script src="auth-guard.js"></script>
   <script src="wallet-balance.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-<script src="config.js"></script>
-<script src="supabase-client.js"></script>
-<script src="auth-guard.js"></script>
-<script src="wallet-balance.js"></script>
-<script src="investment.js"></script>
-  <!-- Minimal page logic (UI only, API hook points) -->
-  <script>
-    const PRODUCTS = [
-      { id: 1, price: 3000, daily: 200, total: 6000 },
-      { id: 2, price: 5000, daily: 333, total: 10000 },
-      { id: 3, price: 10000, daily: 667, total: 20000 },
-      { id: 4, price: 30000, daily: 2000, total: 60000 },
-      { id: 5, price: 100000, daily: 8333, total: 200000 },
-      { id: 6, price: 200000, daily: 16333, total: 400000 },
-      { id: 7, price: 300000, daily: 20000, total: 600000 },
-      { id: 8, price: 400000, daily: 26667, total: 1000000 },
-      { id: 9, price: 500000, daily: 33333, total: 1750000 },
-      { id: 10, price: 1000000, daily: 66667, total: 2000000 },
-    ];
-
-    function money(n){ return "₦" + Number(n).toLocaleString(); }
-
-    function toast(msg){
-      const n = document.getElementById("notice");
-      if(!n) return;
-      n.textContent = msg;
-      n.classList.add("show");
-      setTimeout(()=>n.classList.remove("show"), 2600);
-    }
-
-    // Render product cards
-    (function renderProducts(){
-      const grid = document.getElementById("productsGrid");
-      if(!grid) return;
-
-      grid.innerHTML = PRODUCTS.map(p => `
-        <article class="product-card">
-          <div class="pc-top">
-            <div class="pc-title">Plan ${p.id}</div>
-            <div class="pc-pill">30 Days</div>
-          </div>
-
-          <div class="pc-amt">${money(p.price)}</div>
-          <div class="pc-meta">
-            <div><span class="muted">Daily Income</span><br><strong>${money(p.daily)}</strong></div>
-            <div><span class="muted">Total Return</span><br><strong>${money(p.total)}</strong></div>
-          </div>
-
-          <div class="pc-tags">
-            <span class="tag">200% ROI</span>
-            <span class="tag">Auto Daily Credit</span>
-            <span class="tag">Max 2x lifetime</span>
-          </div>
-
-          <div class="pc-actions">
-            <button class="btn primary" onclick="startInvest(${p.id})">Invest</button>
-            <a class="btn ghost" href="deposit.html">Deposit</a>
-          </div>
-        </article>
-      `).join("");
-    })();
-
-    // Hook: connect to /api/investment (your backend)
-    async function startInvest(productId){
-      toast("Connecting to investment API…");
-      // You will connect this to your dashboard.js/investment.js API call
-      // Example later:
-      // await fetch('/api/investment', { method:'POST', ... })
-      alert("Invest API will be connected here. Product: " + productId);
-    }
-
-    // Hook: render active investments (later from API)
-    // You can load from /api/investment?mine=1 and inject cards here.
-  </script>
+  <script src="investment.js"></script>
 </body>
   </html>
