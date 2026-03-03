@@ -138,70 +138,68 @@ export default async function handler(req, res) {
       });
     }
 
-    // ===============================
-    // PAYSTACK VERIFY + CREDIT
-    // ===============================
-    if (action === "paystack_verify_and_credit") {
-      if (!PAYSTACK_SECRET_KEY) return res.status(500).json({ error: "Missing PAYSTACK_SECRET_KEY" });
-      if (!reference) return res.status(400).json({ error: "reference required" });
+// ===============================
+// PAYSTACK VERIFY + ATOMIC CREDIT (RPC)
+// ===============================
+if (action === "paystack_verify_and_credit") {
+  if (!PAYSTACK_SECRET_KEY) return res.status(500).json({ error: "Missing PAYSTACK_SECRET_KEY" });
+  if (!reference) return res.status(400).json({ error: "reference required" });
 
-      // Verify transaction server-side
-      const vRes = await fetch(
-        `https://api.paystack.co/transaction/verify/${encodeURIComponent(reference)}`,
-        { headers: { Authorization: `Bearer ${PAYSTACK_SECRET_KEY}` } }
-      );
-      const vData = await vRes.json();
+  // 1) Verify transaction server-side with Paystack
+  const vRes = await fetch(
+    `https://api.paystack.co/transaction/verify/${encodeURIComponent(reference)}`,
+    { headers: { Authorization: `Bearer ${PAYSTACK_SECRET_KEY}` } }
+  );
+  const vData = await vRes.json();
 
-      if (!vRes.ok || !vData.status) {
-        return res.status(400).json({ error: vData.message || "Verification failed", raw: vData });
-      }
-
-      const tx = vData.data;
-
-      if (tx.status !== "success") return res.status(400).json({ error: "Payment not successful" });
-      if (tx.currency !== "NGN") return res.status(400).json({ error: "Currency mismatch" });
-
-      const paid = Number(tx.amount) / 100;
-
-      // Optional: if frontend sent expected amount, check it
-      if (amount && Number(paid) !== Number(amount)) {
-        return res.status(400).json({ error: `Amount mismatch. Paid ₦${paid}, expected ₦${amount}` });
-      }
-
-      // ✅ Idempotency / anti double-credit:
-      // You NEED a table to store processed references.
-      // We'll try to insert into "wallet_deposits" with unique(reference).
-      // If you don't have the table yet, create it (SQL below).
-      const insertTx = await fetch(`${SUPABASE_URL}/rest/v1/wallet_deposits`, {
-        method: "POST",
-        headers: { ...headers, Prefer: "return=representation" },
-        body: JSON.stringify({
-          user_id,
-          reference,
-          amount: paid,
-          status: "credited",
-          channel: tx.channel || "paystack",
-        }),
-      });
-
-      // If already inserted (duplicate), Supabase returns error.
-      // In that case, do NOT credit again.
-      if (!insertTx.ok) {
-        return res.status(200).json({ ok: true, already_credited: true, reference });
-      }
-
-      // Now credit wallet
-      const current = await getWallet();
-      if (!current.data.length) return res.status(400).json({ error: "Wallet not found" });
-
-      const newBalance = Number(current.data[0].balance) + Number(paid);
-      await setWalletBalance(current.data[0].id, newBalance);
-
-      return res.status(200).json({ ok: true, reference, paid, balance: newBalance });
-    }
-
-    return res.status(400).json({ error: "Invalid action" });
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
+  if (!vRes.ok || !vData.status) {
+    return res.status(400).json({ error: vData.message || "Verification failed", raw: vData });
   }
+
+  const tx = vData.data;
+
+  if (tx.status !== "success") return res.status(400).json({ error: "Payment not successful" });
+  if (tx.currency !== "NGN") return res.status(400).json({ error: "Currency mismatch" });
+
+  // Stronger binding: ensure transaction metadata matches this user
+  const metaUserId = tx?.metadata?.user_id;
+  if (metaUserId && String(metaUserId) !== String(user_id)) {
+    return res.status(400).json({ error: "User mismatch on transaction" });
+  }
+
+  const paid = Number(tx.amount) / 100;
+
+  // Optional: if frontend sent expected amount, enforce it
+  if (amount && Number(paid) !== Number(amount)) {
+    return res.status(400).json({ error: `Amount mismatch. Paid ₦${paid}, expected ₦${amount}` });
+  }
+
+  // 2) Atomic credit via Supabase RPC
+  const rpcRes = await fetch(`${SUPABASE_URL}/rest/v1/rpc/credit_wallet_from_deposit`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({
+      p_user_id: user_id,
+      p_reference: reference,
+      p_amount: paid,
+      p_channel: tx.channel || "paystack",
+    }),
+  });
+
+  const rpcData = await rpcRes.json().catch(() => null);
+  if (!rpcRes.ok || !Array.isArray(rpcData) || !rpcData.length) {
+    return res.status(500).json({
+      error: "Failed to credit wallet (RPC)",
+      raw: rpcData,
+    });
+  }
+
+  const out = rpcData[0];
+  return res.status(200).json({
+    ok: out.ok,
+    already_credited: out.already_credited,
+    reference: out.reference,
+    paid: out.paid,
+    balance: out.balance,
+  });
         }
