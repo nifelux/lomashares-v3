@@ -10,46 +10,57 @@
   const money = (n) => "₦" + Number(n || 0).toLocaleString();
 
   const { data: { session } } = await sb.auth.getSession();
-  const token = session?.access_token;
-  if (!token) return;
+  if (!session) return;
 
-  const res = await fetch("/api/referral?mode=team", {
-    method: "GET",
-    headers: { "Authorization": `Bearer ${token}` }
-  });
-  const data = await res.json();
+  const me = session.user.id;
 
-  if (!res.ok) {
-    console.warn("Team API error:", data);
+  // referrals table: referrer_id, referred_id, reward_given, created_at
+  const { data: refs, error } = await sb
+    .from("referrals")
+    .select("referred_id, reward_given, created_at")
+    .eq("referrer_id", me)
+    .order("created_at", { ascending: false })
+    .limit(50);
+
+  if (error) {
+    console.warn("team.js referrals error:", error);
+    if (totalEl) totalEl.textContent = "0";
+    if (bonusEl) bonusEl.textContent = money(0);
     return;
   }
 
-  if (totalEl) totalEl.textContent = data.total ?? 0;
-  if (bonusEl) bonusEl.textContent = money(data.bonus ?? 0);
+  const total = refs?.length || 0;
+
+  // If you record referral bonus in transactions, calculate from there (recommended).
+  // For now: reward_given just counts how many got rewarded.
+  const rewardedCount = (refs || []).filter(r => r.reward_given).length;
+
+  if (totalEl) totalEl.textContent = total;
+  if (bonusEl) bonusEl.textContent = money(0); // Replace when you store bonus amount
 
   if (!listEl) return;
 
-  const rows = data.referrals || [];
-  if (rows.length === 0) {
+  if (!refs || refs.length === 0) {
     listEl.innerHTML = `
       <div class="empty">
         <div class="empty-title">No referrals yet</div>
-        <div class="empty-sub">Share your referral link to start earning 10% bonus.</div>
-      </div>
-    `;
+        <div class="empty-sub">Share your link to start earning 10% bonus.</div>
+      </div>`;
     return;
   }
 
-  listEl.innerHTML = rows.map(r => `
+  listEl.innerHTML = refs.map(r => `
     <div class="item">
       <div class="item-left">
-        <div class="item-title">${r.email}</div>
+        <div class="item-title">Referred User</div>
         <div class="item-sub">
-          Joined: <b>${r.created_at ? new Date(r.created_at).toLocaleDateString() : "-"}</b>
-          • Invested: <b>${money(r.total_invested || 0)}</b>
+          Joined: <b>${new Date(r.created_at).toLocaleDateString()}</b>
+          • Reward: <b>${r.reward_given ? "Given" : "Pending"}</b>
         </div>
       </div>
-      <div class="badge active">joined</div>
+      <div class="badge ${r.reward_given ? "active" : "pending"}">
+        ${r.reward_given ? "rewarded" : "pending"}
+      </div>
     </div>
   `).join("");
 })();
