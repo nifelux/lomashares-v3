@@ -1,35 +1,38 @@
 // wallet-balance.js
-(async function () {
-  const sb = window.lomaSupabase;
-  if (!sb) return;
+(function () {
+  "use strict";
 
-  const emailEl = document.getElementById("userEmail");
-  const balanceEl = document.getElementById("walletBalance");
-  const money = (n) => "₦" + Number(n || 0).toLocaleString();
+  const el = document.getElementById("walletBalance");
+  if (!el) return;
 
-  try {
-    const { data: { session } } = await sb.auth.getSession();
-    if (!session) return;
+  const fmt = (n) =>
+    "₦" + Number(n || 0).toLocaleString("en-NG", { maximumFractionDigits: 0 });
 
-    const user_id = session.user.id;
-    const email = session.user.email || "";
-    if (emailEl) emailEl.textContent = email;
+  async function loadBalance() {
+    try {
+      if (!window.sb) return;
 
-    const res = await fetch("/api/wallet", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "get", user_id })
-    });
+      const { data: auth } = await window.sb.auth.getUser();
+      const user = auth?.user;
+      if (!user) return;
 
-    const data = await res.json();
-    if (!res.ok) {
-      console.warn("Wallet API error:", data);
-      if (balanceEl) balanceEl.textContent = money(0);
-      return;
+      // Assumes a "wallets" table: user_id (uuid), balance (numeric)
+      const { data, error } = await window.sb
+        .from("wallets")
+        .select("balance")
+        .eq("user_id", user.id)
+        .single();
+
+      if (error) throw error;
+
+      el.textContent = fmt(data?.balance ?? 0);
+    } catch (e) {
+      console.warn(e);
+      el.textContent = "₦0";
     }
-
-    if (balanceEl) balanceEl.textContent = money(data.balance);
-  } catch (e) {
-    console.error("wallet-balance.js:", e);
   }
+
+  loadBalance();
+  // optional refresh every 20s
+  setInterval(loadBalance, 20000);
 })();
