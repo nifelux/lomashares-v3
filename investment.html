@@ -14,7 +14,6 @@
       <div class="header-inner">
         <div class="header-left">
           <a class="icon-btn" href="dashboard.html" aria-label="Back">
-            <!-- left arrow -->
             <svg class="navicon" viewBox="0 0 24 24" fill="none">
               <path d="M15 18l-6-6 6-6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
@@ -28,7 +27,6 @@
 
         <div class="header-right">
           <a class="icon-btn" href="profile.html" aria-label="Profile">
-            <!-- user icon -->
             <svg class="navicon" viewBox="0 0 24 24" fill="none">
               <path d="M20 21a8 8 0 0 0-16 0" stroke="white" stroke-width="2" stroke-linecap="round"/>
               <path d="M12 11a4 4 0 1 0-4-4 4 4 0 0 0 4 4Z" stroke="white" stroke-width="2"/>
@@ -54,16 +52,16 @@
       </div>
     </section>
 
-    <!-- Active investments section (optional if you later add API list) -->
+    <!-- Active investments -->
     <section class="section">
       <div class="h1">Your Active Investments</div>
       <div class="sub">Your running plans will appear here.</div>
 
       <div class="list" id="activeInvestments">
-  <div class="empty">
-    <div class="empty-title">Loading...</div>
-    <div class="empty-sub">Fetching your active investments.</div>
-  </div>
+        <div class="empty">
+          <div class="empty-title">Loading...</div>
+          <div class="empty-sub">Fetching your active investments.</div>
+        </div>
       </div>
     </section>
 
@@ -72,9 +70,7 @@
       <div class="h1">Choose a Plan</div>
       <div class="sub">Each plan can be purchased <b>twice lifetime</b>. Daily income is credited every 24 hours.</div>
 
-      <div class="grid" id="productsGrid">
-        <!-- investment.js renders cards here -->
-      </div>
+      <div class="grid" id="productsGrid"></div>
     </section>
   </div>
 
