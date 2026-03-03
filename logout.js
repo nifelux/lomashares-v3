@@ -8,6 +8,6 @@
 
   btn.addEventListener("click", async () => {
     await sb.auth.signOut();
-    location.replace((window.LOMA_CONFIG?.ROUTES?.login) || "index.html");
+    location.replace(window.LOMA_CONFIG?.ROUTES?.login || "index.html");
   });
 })();
