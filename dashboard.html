@@ -1,172 +1,68 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>LomaShares — Dashboard</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>LomaShares • Dashboard</title>
+  <link rel="stylesheet" href="style.css"/>
 </head>
+<body>
+  <div id="notice"></div>
 
-<body
-  data-page="dashboard"
-  data-supabase-url="https://lpnnqxalmihxgszoifpa.supabase.co"
-  data-supabase-anon="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxwbm5xeGFsbWloeGdzem9pZnBhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE3MzM1ODEsImV4cCI6MjA4NzMwOTU4MX0.1hLW5gizjcPTKyfzx_XD9dxqegtXVQroNCclX1AaqZw"
->
-  <!-- Sticky Header -->
   <header class="topbar">
-    <div class="left">
-      <button class="icon-btn" id="refreshBtn" type="button" aria-label="Refresh">
-        <!-- refresh icon -->
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <path d="M20 12a8 8 0 1 1-2.34-5.66" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-          <path d="M20 4v6h-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-    </div>
-
-    <div class="brand">
-      <div class="name">LOMASHARES</div>
-      <div class="sub">Dashboard</div>
-    </div>
-
+    <div class="brand">LOMASHARES</div>
     <div class="right">
-      <button class="icon-btn" id="logoutBtn" type="button" aria-label="Logout">
-        <!-- logout icon -->
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <path d="M10 17l-1 0a4 4 0 0 1-4-4V11a4 4 0 0 1 4-4h1" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-          <path d="M14 7l5 5-5 5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M19 12H10" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-        </svg>
-      </button>
+      <a class="btn ghost" style="padding:10px 12px" href="profile.html">Profile</a>
     </div>
   </header>
 
-  <main class="container">
-    <!-- Wallet Card -->
-    <section class="card balance-card">
-      <div class="balance-top">
-        <div class="b-left">
-          <div class="balance-label">Wallet Balance</div>
-          <div class="balance-amt" id="walletBalance">₦0</div>
-          <div class="pmeta" id="userEmail" style="margin-top:8px;">Loading…</div>
-        </div>
+  <main class="page">
+    <!-- Balance Card -->
+    <div class="panel card">
+      <div class="small">Wallet Balance</div>
+      <div id="bal" class="big" style="margin-top:6px">₦0</div>
+      <div class="muted" id="emailLine" style="margin-top:6px">Loading…</div>
 
-        <div class="b-right">
-          <div class="pill">NGN Wallet</div>
-          <button class="btn secondary" type="button" id="goDepositBtn">
-            Deposit
-          </button>
-        </div>
+      <div class="row" style="margin-top:12px">
+        <a class="btn primary" style="flex:1" href="deposit.html">Deposit</a>
+        <a class="btn ghost" style="flex:1" href="withdraw.html">Withdraw</a>
       </div>
-
-      <div class="balance-stats">
-        <div class="statbox">
-          <div class="statlabel">Today</div>
-          <div class="statvalue" id="todayEarnings">₦0</div>
-        </div>
-        <div class="statbox">
-          <div class="statlabel">Active Plans</div>
-          <div class="statvalue" id="activePlans">0</div>
-        </div>
-      </div>
-    </section>
+    </div>
 
     <!-- Quick Links -->
     <div class="section-title">Quick Links</div>
-    <section class="grid">
-      <button class="qbtn" id="qlDeposit" type="button">
-        <span class="qico">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-          </svg>
-        </span>
-        <span class="qtxt">Deposit</span>
-      </button>
-
-      <button class="qbtn" id="qlWithdraw" type="button">
-        <span class="qico">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M12 19V5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-            <path d="M7 10l5-5 5 5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </span>
-        <span class="qtxt">Withdraw</span>
-      </button>
-
-      <button class="qbtn" id="qlGift" type="button">
-        <span class="qico">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M20 12v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-            <path d="M4 12h16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-            <path d="M12 22V12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-          </svg>
-        </span>
-        <span class="qtxt">Gift</span>
-      </button>
-
-      <button class="qbtn" id="qlRefer" type="button">
-        <span class="qico">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M16 11a4 4 0 1 0-8 0" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-            <path d="M12 15c-4.4 0-8 2-8 4.5V21h16v-1.5C20 17 16.4 15 12 15z" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </span>
-        <span class="qtxt">Refer</span>
-      </button>
-    </section>
+    <div class="panel">
+      <div class="klinks">
+        <a class="klink" href="deposit.html">
+          <div><div style="font-weight:950">Deposit</div><span>Fund your wallet</span></div>
+          <div class="badge">→</div>
+        </a>
+        <a class="klink" href="withdraw.html">
+          <div><div style="font-weight:950">Withdraw</div><span>Request payout</span></div>
+          <div class="badge">→</div>
+        </a>
+        <a class="klink" href="gift.html">
+          <div><div style="font-weight:950">Gift Code</div><span>Redeem bonus</span></div>
+          <div class="badge">→</div>
+        </a>
+        <a class="klink" href="refer.html">
+          <div><div style="font-weight:950">Refer</div><span>Invite & earn</span></div>
+          <div class="badge">→</div>
+        </a>
+      </div>
+    </div>
 
     <!-- Products -->
-    <div class="section-title">Products (200% in 30 Days)</div>
-    <section class="products" id="products">
-      <!-- injected by dashboard.js -->
-    </section>
-
-    <!-- Toast -->
-    <div class="notice" id="notice"></div>
+    <div class="section-title">Investment Plans</div>
+    <div class="panel">
+      <div class="grid" id="products"></div>
+    </div>
   </main>
 
-  <!-- Sticky Footer Nav -->
   <footer class="footer">
-    <a class="navitem active" href="dashboard.html">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <path d="M4 10.5 12 4l8 6.5V20a1.5 1.5 0 0 1-1.5 1.5H5.5A1.5 1.5 0 0 1 4 20v-9.5Z" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      Home
-      <div class="dot"></div>
-    </a>
-
-    <a class="navitem" href="investment.html">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <path d="M4 19V5m0 14h16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-        <path d="M7 15l3-4 3 2 4-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      Invest
-      <div class="dot"></div>
-    </a>
-
-    <a class="navitem" href="team.html">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <path d="M16 11a4 4 0 1 0-8 0" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-        <path d="M12 15c-4.4 0-8 2-8 4.5V21h16v-1.5C20 17 16.4 15 12 15z" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      Team
-      <div class="dot"></div>
-    </a>
-
-    <a class="navitem" href="profile.html">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Z" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-        <path d="M4 21c.8-4 4.1-6 8-6s7.2 2 8 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-      </svg>
-      Profile
-      <div class="dot"></div>
-    </a>
+    <nav class="nav" id="bottomNav"></nav>
   </footer>
 
-  <!-- Supabase UMD -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.min.js"></script>
-
-  <!-- Dashboard logic -->
-  <script src="dashboard.js"></script>
+  <script type="module" src="dashboard.js"></script>
 </body>
-  </html>
+                                                                                        </html>
