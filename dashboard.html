@@ -66,3 +66,34 @@
   <script type="module" src="dashboard.js"></script>
 </body>
                                                                                         </html>
+<div id="notice"></div>
+
+<header class="topbar">
+  <div class="brand">LOMASHARES</div>
+  <div class="right">
+    <a class="btn ghost" style="padding:10px 12px" href="profile.html">Profile</a>
+  </div>
+</header>
+
+<footer class="footer">
+  <nav class="nav" id="bottomNav"></nav>
+</footer>
+
+<script type="module">
+  import "./config.js";
+  import "./supabase.js";
+  import "./ui.js";
+  import "./auth-guard.js";
+
+  const { svgHome, svgInvest, svgTeam, svgProfile } = window.LomaUI;
+  const page = (location.pathname.split("/").pop() || "dashboard.html").toLowerCase();
+  const nav = document.getElementById("bottomNav");
+  if(nav){
+    nav.innerHTML = `
+      <a href="dashboard.html" class="${page==='dashboard.html'?'active':''}">${svgHome()}Home</a>
+      <a href="investment.html" class="${page==='investment.html'?'active':''}">${svgInvest()}Invest</a>
+      <a href="team.html" class="${page==='team.html'?'active':''}">${svgTeam()}Team</a>
+      <a href="profile.html" class="${page==='profile.html'?'active':''}">${svgProfile()}Profile</a>
+    `;
+  }
+</script>
