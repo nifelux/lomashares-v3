@@ -1,82 +1,42 @@
-// gift.js
-(async function () {
-  const sb = window.lomaSupabase;
-  if (!sb) return;
+import "./config.js";
+import "./supabase.js";
+import "./ui.js";
+import "./auth-guard.js";
 
-  const input = document.getElementById("giftCode");
-  const btn = document.getElementById("redeemBtn");
-  const historyEl = document.getElementById("giftHistory");
-  const notice = document.getElementById("notice");
+const sb = window.lomaSupabase;
+const { toast, svgHome, svgInvest, svgTeam, svgProfile } = window.LomaUI;
 
-  const toast = (msg) => {
-    if (!notice) return;
-    notice.textContent = msg;
-    notice.classList.add("show");
-    setTimeout(() => notice.classList.remove("show"), 2400);
-  };
-
-  const money = (n) => "₦" + Number(n || 0).toLocaleString();
-
+async function token(){
   const { data: { session } } = await sb.auth.getSession();
-  if (!session) return;
-  const user_id = session.user.id;
+  return session?.access_token || null;
+}
 
-  async function loadHistory() {
-    if (!historyEl) return;
-    // If you store gift redemption as transactions:
-    const { data, error } = await sb
-      .from("transactions")
-      .select("type, amount, status, created_at")
-      .eq("user_id", user_id)
-      .eq("type", "Gift")
-      .order("created_at", { ascending: false })
-      .limit(20);
+function mountNav(){
+  const nav = document.getElementById("bottomNav");
+  nav.innerHTML = `
+    <a href="dashboard.html">${svgHome()}Home</a>
+    <a href="investment.html">${svgInvest()}Invest</a>
+    <a href="team.html">${svgTeam()}Team</a>
+    <a href="profile.html">${svgProfile()}Profile</a>
+  `;
+}
 
-    if (error || !data?.length) {
-      historyEl.innerHTML = `
-        <div class="empty">
-          <div class="empty-title">No gift history</div>
-          <div class="empty-sub">Redeemed gift codes will show here.</div>
-        </div>`;
-      return;
-    }
+document.getElementById("redeemBtn").onclick = async () => {
+  const code = document.getElementById("giftCode").value.trim().toUpperCase();
+  if(!code) return toast("Enter a gift code");
 
-    historyEl.innerHTML = data.map(t => `
-      <div class="item">
-        <div class="item-left">
-          <div class="item-title">Gift Credited</div>
-          <div class="item-sub">+ <b>${money(t.amount)}</b> • ${new Date(t.created_at).toLocaleDateString()}</div>
-        </div>
-        <div class="badge active">${(t.status || "success")}</div>
-      </div>
-    `).join("");
-  }
+  const t = await token();
+  if(!t) return toast("Please login again");
 
-  btn?.addEventListener("click", async () => {
-    const code = (input?.value || "").trim().toUpperCase();
-    if (!code) return toast("Enter a gift code.");
-
-    btn.disabled = true;
-    toast("Checking gift code...");
-
-    // Backend recommended (one-time use must be enforced server-side)
-    const res = await fetch("/api/gift", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "redeem", user_id, code })
-    });
-
-    const data = await res.json();
-    btn.disabled = false;
-
-    if (!res.ok) return toast(data?.error || "Gift code failed");
-
-    toast(`Gift applied! +${money(data.amount || 0)}`);
-    if (input) input.value = "";
-
-    await loadHistory();
-    setTimeout(() => location.reload(), 800);
+  toast("Redeeming…");
+  const res = await fetch("/api/gift", {
+    method:"POST",
+    headers:{ "Content-Type":"application/json", "Authorization":`Bearer ${t}` },
+    body: JSON.stringify({ action:"redeem", code })
   });
+  const data = await res.json().catch(()=>({}));
+  if(!res.ok || !data.ok) return toast(data.error || "Failed");
+  toast(`Success! Credited ₦${Number(data.amount).toLocaleString()}`);
+};
 
-  await loadHistory();
-})();
+mountNav();
