@@ -1,0 +1,18 @@
+<!doctype html><html><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>LomaShares • Admin Gift</title>
+<link rel="stylesheet" href="style.css"/></head><body>
+<div id="notice"></div>
+<header class="topbar"><div class="brand">LOMASHARES</div></header>
+<main class="page">
+  <div class="panel card">
+    <div class="big">Generate Gift Code</div>
+    <div class="section-title">Amount</div>
+    <input class="input" id="amt" placeholder="e.g. 500" inputmode="numeric"/>
+    <button class="btn primary" id="gen" style="width:100%;margin-top:12px" type="button">Generate</button>
+    <div id="out" class="muted" style="margin-top:12px"></div>
+  </div>
+</main>
+<footer class="footer"><nav class="nav" id="bottomNav"></nav></footer>
+<script type="module">import "./admin.js"; window.ADMIN_MODE="gift";</script>
+</body></html>
