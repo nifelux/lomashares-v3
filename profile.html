@@ -1,661 +1,77 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>LomaShares — Profile</title>
-
-  <style>
-    :root{
-      --bg1:#050b18;
-      --bg2:#070f22;
-      --card:rgba(10,18,40,.86);
-      --line:rgba(255,255,255,.10);
-      --text:rgba(234,242,255,.96);
-      --muted:rgba(234,242,255,.70);
-      --muted2:rgba(234,242,255,.55);
-      --blue:#2f80ff;
-      --blue2:#1a63ff;
-      --gold:#caa24a;
-      --shadow:0 18px 60px rgba(0,0,0,.45);
-      --radius:18px;
-    }
-
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
-      background: radial-gradient(1200px 800px at 20% -10%, rgba(47,128,255,.25), transparent 55%),
-                  radial-gradient(900px 700px at 110% 20%, rgba(202,162,74,.15), transparent 55%),
-                  linear-gradient(180deg, var(--bg1), var(--bg2));
-      color:var(--text);
-      overflow-x:hidden;
-    }
-
-    /* Sticky header */
-    .topbar{
-      position:sticky;
-      top:0;
-      z-index:50;
-      height:64px;
-      padding: 0 14px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background: rgba(5,11,24,.72);
-      backdrop-filter: blur(10px);
-      border-bottom:1px solid var(--line);
-    }
-    .topbar .left, .topbar .right{
-      position:absolute;
-      top:0; height:64px;
-      display:flex; align-items:center;
-    }
-    .topbar .left{left:10px}
-    .topbar .right{right:10px}
-    .brand{
-      text-align:center;
-      line-height:1.05;
-    }
-    .brand .name{
-      font-weight:1000;
-      letter-spacing:2px;
-      font-size:16px;
-    }
-    .brand .sub{
-      font-size:11px;
-      color:var(--muted2);
-      margin-top:2px;
-    }
-
-    .icon-btn{
-      width:42px;height:42px;
-      border-radius:14px;
-      border:1px solid var(--line);
-      background: rgba(255,255,255,.03);
-      color:var(--text);
-      display:grid;
-      place-items:center;
-      cursor:pointer;
-    }
-    .icon-btn:active{transform:scale(.98)}
-
-    /* layout */
-    .main{
-      max-width: 520px;
-      margin: 0 auto;
-      padding: 14px 14px 92px; /* space for footer */
-    }
-
-    .card{
-      background: var(--card);
-      border:1px solid var(--line);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-    }
-
-    /* profile header card */
-    .profile-card{
-      display:flex;
-      gap:12px;
-      padding:14px;
-      align-items:center;
-    }
-
-    .avatarWrap{
-      flex: 0 0 40%;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-    }
-    .avatar{
-      width:88px;height:88px;
-      border-radius:999px;
-      border: 2px solid rgba(202,162,74,.35);
-      background: radial-gradient(70px 70px at 30% 20%, rgba(47,128,255,.35), rgba(47,128,255,.08));
-      display:grid;
-      place-items:center;
-      font-weight:1000;
-      font-size:26px;
-      letter-spacing:1px;
-      color:rgba(234,242,255,.95);
-      box-shadow: 0 10px 35px rgba(0,0,0,.35);
-    }
-
-    .info{
-      flex: 1 1 60%;
-      min-width:0;
-    }
-    .username{
-      font-weight:1000;
-      font-size:16px;
-      margin: 2px 0 4px;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-    .email{
-      font-size:12px;
-      color:var(--muted);
-      word-break:break-word;
-      line-height:1.25;
-    }
-
-    /* balance card */
-    .balance{
-      margin-top:12px;
-      padding:14px;
-    }
-    .balance-top{
-      display:flex;
-      justify-content:space-between;
-      align-items:flex-start;
-      gap:10px;
-    }
-    .balance .label{
-      font-size:12px;
-      color:var(--muted2);
-      font-weight:800;
-    }
-    .balance .amt{
-      font-size:22px;
-      font-weight:1100;
-      margin-top:6px;
-      letter-spacing:.2px;
-    }
-    .pill{
-      padding:8px 10px;
-      border-radius:999px;
-      border:1px solid rgba(47,128,255,.25);
-      background: rgba(47,128,255,.10);
-      font-size:11px;
-      color: rgba(234,242,255,.9);
-      font-weight:800;
-      white-space:nowrap;
-    }
-
-    /* quick links */
-    .grid{
-      margin-top:12px;
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:10px;
-    }
-    .qbtn{
-      height:62px;
-      border-radius: 18px;
-      border:1px solid var(--line);
-      background: rgba(255,255,255,.03);
-      color: var(--text);
-      display:flex;
-      align-items:center;
-      justify-content:flex-start;
-      gap:10px;
-      padding: 0 14px;
-      font-weight:900;
-      cursor:pointer;
-      box-shadow: 0 10px 30px rgba(0,0,0,.25);
-    }
-    .qbtn:active{transform:scale(.99)}
-    .qico{
-      width:36px;height:36px;
-      border-radius:14px;
-      background: rgba(47,128,255,.12);
-      border:1px solid rgba(47,128,255,.18);
-      display:grid;place-items:center;
-      color: rgba(234,242,255,.95);
-      flex:0 0 auto;
-    }
-    .qtxt{font-size:13px}
-
-    /* action list buttons */
-    .list{
-      margin-top:14px;
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-    }
-    .biglink{
-      height:90px;
-      border-radius: 20px;
-      border:1px solid var(--line);
-      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
-      box-shadow: 0 12px 40px rgba(0,0,0,.35);
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      padding: 0 16px;
-      text-decoration:none;
-      color: var(--text);
-      cursor:pointer;
-    }
-    .biglink:active{transform:scale(.99)}
-    .bigleft{
-      display:flex;
-      gap:12px;
-      align-items:center;
-      min-width:0;
-    }
-    .bigico{
-      width:48px;height:48px;border-radius:18px;
-      border:1px solid rgba(202,162,74,.22);
-      background: rgba(202,162,74,.10);
-      display:grid;place-items:center;
-      flex:0 0 auto;
-    }
-    .bigtxt{
-      min-width:0;
-    }
-    .bigtxt .t{
-      font-weight:1000;
-      font-size:14px;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-    .bigtxt .s{
-      font-size:12px;
-      color: var(--muted2);
-      margin-top:4px;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-    .arrow{
-      color: rgba(234,242,255,.65);
-      font-weight:1000;
-      font-size:18px;
-    }
-
-    /* footer nav (sticky bottom) */
-    .footer{
-      position:fixed;
-      left:0; right:0; bottom:0;
-      height:74px;
-      background: rgba(5,11,24,.78);
-      backdrop-filter: blur(10px);
-      border-top:1px solid var(--line);
-      display:flex;
-      justify-content:space-around;
-      align-items:center;
-      z-index:60;
-      padding-bottom: env(safe-area-inset-bottom);
-    }
-    .navitem{
-      width:25%;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      gap:6px;
-      text-decoration:none;
-      color: rgba(234,242,255,.75);
-      font-size:11px;
-      font-weight:900;
-    }
-    .navitem svg{opacity:.9}
-    .navitem.active{color: rgba(234,242,255,.98)}
-    .navitem.active .dot{background: var(--blue)}
-    .dot{
-      width:16px;height:4px;border-radius:999px;
-      background: transparent;
-    }
-
-    /* small toast */
-    .toast{
-      margin-top:10px;
-      padding:10px 12px;
-      border-radius:14px;
-      border:1px solid var(--line);
-      background: rgba(255,255,255,.03);
-      color: rgba(234,242,255,.86);
-      font-size:12px;
-      line-height:1.35;
-      display:none;
-    }
-    .toast.show{display:block}
-  </style>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>LomaShares • Profile</title>
+  <link rel="stylesheet" href="style.css"/>
 </head>
+<body>
+  <div id="notice"></div>
 
-<body
-  data-supabase-url="https://lpnnqxalmihxgszoifpa.supabase.co"
-  data-supabase-anon="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxwbm5xeGFsbWloeGdzem9pZnBhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE3MzM1ODEsImV4cCI6MjA4NzMwOTU4MX0.1hLW5gizjcPTKyfzx_XD9dxqegtXVQroNCclX1AaqZw"
->
-  <!-- Header -->
   <header class="topbar">
-    <div class="left">
-      <a class="icon-btn" href="dashboard.html" aria-label="Back Home">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </a>
-    </div>
-
-    <div class="brand">
-      <div class="name">LOMASHARES</div>
-      <div class="sub">Profile</div>
-    </div>
-
+    <div class="brand">LOMASHARES</div>
     <div class="right">
-      <button class="icon-btn" id="logoutTop" type="button" aria-label="Logout">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <path d="M10 17l-1 0a4 4 0 0 1-4-4V11a4 4 0 0 1 4-4h1" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-          <path d="M14 7l5 5-5 5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M19 12H10" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-        </svg>
-      </button>
+      <button class="btn danger" style="padding:10px 12px" id="logoutBtn" type="button">Logout</button>
     </div>
   </header>
 
-  <main class="main">
-    <!-- Profile card (40/60) -->
-    <section class="card profile-card">
-      <div class="avatarWrap">
-        <div class="avatar" id="avatar">LS</div>
+  <main class="page">
+    <div class="panel card">
+      <div class="row" style="align-items:center">
+        <!-- 40% avatar -->
+        <div style="width:40%;display:flex;justify-content:center">
+          <div style="
+            width:86px;height:86px;border-radius:50%;
+            background:linear-gradient(180deg, rgba(27,117,255,.35), rgba(0,0,0,.25));
+            border:1px solid rgba(255,255,255,.10);
+            display:flex;align-items:center;justify-content:center;
+            font-weight:950;font-size:22px;color:rgba(230,240,255,.95);
+          " id="avatar">LS</div>
+        </div>
+
+        <!-- 60% text -->
+        <div style="width:60%">
+          <div class="small">Account</div>
+          <div id="name" class="big" style="margin-top:4px">Loading…</div>
+          <div id="email" class="muted" style="margin-top:4px">Loading…</div>
+        </div>
       </div>
-      <div class="info">
-        <div class="username" id="username">Loading...</div>
-        <div class="email" id="useremail">Loading...</div>
-      </div>
-    </section>
 
-    <!-- Wallet balance -->
-    <section class="card balance">
-      <div class="balance-top">
-        <div>
-          <div class="label">Wallet Balance</div>
-          <div class="amt" id="walletBalance">₦0</div>
-        </div>
-        <div class="pill" id="acctState">Checking...</div>
-      </div>
-      <div class="toast" id="toast"></div>
-    </section>
+      <div class="section-title">Wallet Balance</div>
+      <div id="bal" class="big">₦0</div>
 
-    <!-- Quick Links -->
-    <section class="grid">
-      <button class="qbtn" onclick="location.href='deposit.html'">
-        <span class="qico">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-          </svg>
-        </span>
-        <span class="qtxt">Deposit</span>
-      </button>
+      <div class="section-title">History & Links</div>
 
-      <button class="qbtn" onclick="location.href='withdraw.html'">
-        <span class="qico">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M12 19V5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-            <path d="M7 10l5-5 5 5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </span>
-        <span class="qtxt">Withdraw</span>
-      </button>
-
-      <button class="qbtn" onclick="location.href='gift.html'">
-        <span class="qico">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M20 12v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-            <path d="M4 12h16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-            <path d="M12 22V12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-            <path d="M12 12V6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-            <path d="M9.5 6c-1.2 0-2.5-1-2.5-2.3C7 2.6 8 2 9 2c1.8 0 3 2.3 3 4z" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-            <path d="M14.5 6c1.2 0 2.5-1 2.5-2.3C17 2.6 16 2 15 2c-1.8 0-3 2.3-3 4z" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-          </svg>
-        </span>
-        <span class="qtxt">Gift Code</span>
-      </button>
-
-      <button class="qbtn" onclick="location.href='refer.html'">
-        <span class="qico">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M16 11a4 4 0 1 0-8 0" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-            <path d="M12 15c-4.4 0-8 2-8 4.5V21h16v-1.5C20 17 16.4 15 12 15z" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </span>
-        <span class="qtxt">Refer</span>
-      </button>
-    </section>
-
-    <!-- Action Buttons (full width, ~90px) -->
-    <section class="list">
-      <a class="biglink" href="transactions.html">
-        <div class="bigleft">
-          <div class="bigico">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-              <path d="M4 6h16M4 12h16M4 18h10" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-            </svg>
-          </div>
-          <div class="bigtxt">
-            <div class="t">Transaction History</div>
-            <div class="s">View all transactions</div>
-          </div>
-        </div>
-        <div class="arrow">›</div>
+      <a class="klink" href="transactions.html" style="height:90px;margin-top:10px">
+        <div><div style="font-weight:950">Transaction History</div><span>All activities</span></div>
+        <div class="badge">→</div>
       </a>
 
-      <a class="biglink" href="withdrawals.html">
-        <div class="bigleft">
-          <div class="bigico">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-              <path d="M12 19V5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-              <path d="M7 10l5-5 5 5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-          <div class="bigtxt">
-            <div class="t">Withdrawal History</div>
-            <div class="s">Track approved & pending</div>
-          </div>
-        </div>
-        <div class="arrow">›</div>
+      <a class="klink" href="withdrawals.html" style="height:90px;margin-top:10px">
+        <div><div style="font-weight:950">Withdrawal History</div><span>Your payouts</span></div>
+        <div class="badge">→</div>
       </a>
 
-      <a class="biglink" href="deposits.html">
-        <div class="bigleft">
-          <div class="bigico">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-              <path d="M12 5v14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-              <path d="M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-            </svg>
-          </div>
-          <div class="bigtxt">
-            <div class="t">Deposit History</div>
-            <div class="s">See funding records</div>
-          </div>
-        </div>
-        <div class="arrow">›</div>
+      <a class="klink" href="deposits.html" style="height:90px;margin-top:10px">
+        <div><div style="font-weight:950">Deposit History</div><span>Your funding</span></div>
+        <div class="badge">→</div>
       </a>
 
-      <a class="biglink" href="https://t.me/YOUR_TELEGRAM" target="_blank" rel="noopener">
-        <div class="bigleft">
-          <div class="bigico">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-              <path d="M21 5L3 12l6 2 2 6 3-4 5 3 2-14z" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-          <div class="bigtxt">
-            <div class="t">Join Telegram Group</div>
-            <div class="s">Updates & announcements</div>
-          </div>
-        </div>
-        <div class="arrow">›</div>
+      <a class="klink" href="https://t.me/YOUR_TELEGRAM" target="_blank" style="height:90px;margin-top:10px">
+        <div><div style="font-weight:950">Join Telegram Group</div><span>Community updates</span></div>
+        <div class="badge">↗</div>
       </a>
 
-      <a class="biglink" href="https://chat.whatsapp.com/YOUR_WHATSAPP" target="_blank" rel="noopener">
-        <div class="bigleft">
-          <div class="bigico">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-              <path d="M20 11.5a7.5 7.5 0 0 1-11.2 6.5L4 19l1.1-4.6A7.5 7.5 0 1 1 20 11.5z" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M9 10c.3 1.2 1.9 2.8 3.1 3.1.4.1 1 0 1.5-.4l.6-.5c.3-.2.7-.2 1 0l.8.6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-            </svg>
-          </div>
-          <div class="bigtxt">
-            <div class="t">Join WhatsApp Group</div>
-            <div class="s">Support & community</div>
-          </div>
-        </div>
-        <div class="arrow">›</div>
+      <a class="klink" href="https://wa.me/YOUR_WHATSAPP" target="_blank" style="height:90px;margin-top:10px">
+        <div><div style="font-weight:950">Join WhatsApp Group</div><span>Support & info</span></div>
+        <div class="badge">↗</div>
       </a>
-
-      <button class="biglink" id="logoutBtn" type="button">
-        <div class="bigleft">
-          <div class="bigico">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-              <path d="M10 17l-1 0a4 4 0 0 1-4-4V11a4 4 0 0 1 4-4h1" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-              <path d="M14 7l5 5-5 5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M19 12H10" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-            </svg>
-          </div>
-          <div class="bigtxt">
-            <div class="t">Logout</div>
-            <div class="s">Securely sign out</div>
-          </div>
-        </div>
-        <div class="arrow">›</div>
-      </button>
-    </section>
+    </div>
   </main>
 
-  <!-- Sticky Footer Nav -->
-  <footer class="footer">
-    <a class="navitem" href="dashboard.html">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <path d="M4 10.5 12 4l8 6.5V20a1.5 1.5 0 0 1-1.5 1.5H5.5A1.5 1.5 0 0 1 4 20v-9.5Z" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      Home
-      <div class="dot"></div>
-    </a>
+  <footer class="footer"><nav class="nav" id="bottomNav"></nav></footer>
 
-    <a class="navitem" href="investment.html">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <path d="M4 19V5m0 14h16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-        <path d="M7 15l3-4 3 2 4-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      Invest
-      <div class="dot"></div>
-    </a>
-
-    <a class="navitem" href="team.html">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <path d="M16 11a4 4 0 1 0-8 0" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-        <path d="M12 15c-4.4 0-8 2-8 4.5V21h16v-1.5C20 17 16.4 15 12 15z" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      Team
-      <div class="dot"></div>
-    </a>
-
-    <a class="navitem active" href="profile.html">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Z" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-        <path d="M4 21c.8-4 4.1-6 8-6s7.2 2 8 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-      </svg>
-      Profile
-      <div class="dot"></div>
-    </a>
-  </footer>
-
-  <!-- Supabase CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <script>
-    (function () {
-      "use strict";
-
-      const SB_URL = document.body.dataset.supabaseUrl;
-      const SB_ANON = document.body.dataset.supabaseAnon;
-      const supabase = window.supabase.createClient(SB_URL, SB_ANON);
-
-      const elUser = document.getElementById("username");
-      const elEmail = document.getElementById("useremail");
-      const elAvatar = document.getElementById("avatar");
-      const elBal = document.getElementById("walletBalance");
-      const elState = document.getElementById("acctState");
-      const toast = document.getElementById("toast");
-
-      function showToast(msg){
-        if(!toast) return;
-        toast.textContent = msg;
-        toast.classList.add("show");
-        setTimeout(()=>toast.classList.remove("show"), 3500);
-      }
-
-      function formatNaira(n){
-        const num = Number(n || 0);
-        return "₦" + num.toLocaleString("en-NG");
-      }
-
-      function nameFromEmail(email){
-        if(!email) return "User";
-        return email.split("@")[0];
-      }
-
-      function initialsFromName(name){
-        const s = String(name || "").trim();
-        if(!s) return "LS";
-        const parts = s.split(/[._\s-]+/).filter(Boolean);
-        const a = (parts[0] || "L")[0] || "L";
-        const b = (parts[1] || parts[0] || "S")[0] || "S";
-        return (a + b).toUpperCase();
-      }
-
-      async function guard(){
-        const { data } = await supabase.auth.getSession();
-        const session = data?.session;
-        if(!session){
-          window.location.replace("index.html");
-          return null;
-        }
-        return session;
-      }
-
-      async function loadProfile(){
-        const session = await guard();
-        if(!session) return;
-
-        const email = session.user?.email || "";
-        const username = nameFromEmail(email);
-
-        if(elEmail) elEmail.textContent = email;
-        if(elUser) elUser.textContent = username;
-        if(elAvatar) elAvatar.textContent = initialsFromName(username);
-
-        if(elState) elState.textContent = "Verified";
-
-        // Fetch wallet balance from backend
-        // Expects: POST /api/wallet { action:"get" } OR { action:"get", user_id }
-        // We'll use auth user id
-        try{
-          const r = await fetch("/api/wallet", {
-            method: "POST",
-            headers: {"Content-Type":"application/json"},
-            body: JSON.stringify({ action:"get", user_id: session.user.id })
-          });
-          const data = await r.json().catch(()=>({}));
-          if(!r.ok){
-            showToast("Wallet error: " + (data.error || "Failed"));
-            return;
-          }
-
-          // Accept either {balance} or {wallet:{balance}}
-          const bal = (data.wallet && data.wallet.balance != null) ? data.wallet.balance : data.balance;
-          if(elBal) elBal.textContent = formatNaira(bal);
-
-        }catch(e){
-          showToast("Network error fetching wallet");
-        }
-      }
-
-      async function logout(){
-        await supabase.auth.signOut();
-        window.location.replace("index.html");
-      }
-
-      document.getElementById("logoutBtn")?.addEventListener("click", logout);
-      document.getElementById("logoutTop")?.addEventListener("click", logout);
-
-      document.addEventListener("DOMContentLoaded", loadProfile);
-    })();
-  </script>
+  <script type="module" src="profile.js"></script>
 </body>
-  </html>
+</html>
