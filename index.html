@@ -1,100 +1,62 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>LomaShares — Login</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>LomaShares • Login</title>
+  <link rel="stylesheet" href="style.css"/>
 </head>
+<body>
+  <div id="notice"></div>
 
-<body
-  data-page="login"
-  data-supabase-url="https://lpnnqxalmihxgszoifpa.supabase.co"
-  data-supabase-anon="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxwbm5xeGFsbWloeGdzem9pZnBhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE3MzM1ODEsImV4cCI6MjA4NzMwOTU4MX0.1hLW5gizjcPTKyfzx_XD9dxqegtXVQroNCclX1AaqZw"
->
-  <!-- Sticky Header -->
   <header class="topbar">
-    <div class="brand">
-      <div class="name">LOMASHARES</div>
-      <div class="sub">Secure Login</div>
+    <div class="brand">LOMASHARES</div>
+    <div class="right">
+      <a class="btn ghost" style="padding:10px 12px" href="register.html">Register</a>
     </div>
   </header>
 
-  <main class="container auth-wrap">
-    <section class="card auth-card">
-      <div class="logo">LS</div>
-      <h1 class="h1">Welcome Back</h1>
-      <p class="p">Login to manage your wallet, invest, and track earnings.</p>
+  <main class="page">
+    <div class="panel card">
+      <div class="big">Welcome back</div>
+      <div class="muted" style="margin-top:6px">Login to continue to your dashboard.</div>
 
-      <div class="stack">
-        <input class="field" id="email" type="email" placeholder="Email address" autocomplete="email" />
-        <input class="field" id="password" type="password" placeholder="Password" autocomplete="current-password" />
-        <button class="btn" id="loginBtn" type="button">Login</button>
-        <button class="btn secondary" type="button" onclick="window.location.href='register.html'">Create Account</button>
+      <div class="section-title">Email</div>
+      <input class="input" id="email" type="email" placeholder="you@example.com" autocomplete="email"/>
+
+      <div class="section-title">Password</div>
+      <input class="input" id="password" type="password" placeholder="••••••••" autocomplete="current-password"/>
+
+      <button class="btn primary" style="width:100%;margin-top:14px" id="loginBtn" type="button">
+        Login
+      </button>
+
+      <div class="muted" style="margin-top:12px;text-align:center">
+        New here? <a href="register.html" style="color:#a8c8ff;font-weight:900;text-decoration:none">Create account</a>
       </div>
-
-      <div class="small-links">
-        <a href="#" id="aboutLink">About</a>
-        <a href="#" id="helpLink">Help</a>
-      </div>
-
-      <div class="notice" id="notice"></div>
-    </section>
+    </div>
   </main>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.min.js"></script>
+  <script type="module">
+    import "./config.js";
+    import "./supabase.js";
+    import "./ui.js";
+    import "./auth-guard.js";
+    import "./auth.js";
 
-  <script>
-    (function(){
-      "use strict";
+    const { toast } = window.LomaUI;
 
-      const SB_URL = document.body.getAttribute("data-supabase-url");
-      const SB_ANON = document.body.getAttribute("data-supabase-anon");
-      const notice = document.getElementById("notice");
+    document.getElementById("loginBtn").addEventListener("click", async ()=>{
+      const email = document.getElementById("email").value.trim().toLowerCase();
+      const password = document.getElementById("password").value.trim();
+      if(!email || !password) return toast("Enter email and password");
 
-      function show(msg){
-        notice.textContent = msg;
-        notice.classList.add("show");
+      try{
+        await window.LomaAuth.login(email, password);
+      }catch(e){
+        toast(e?.message || "Login failed");
       }
-
-      if(!SB_URL || !SB_ANON){
-        show("Config error: Supabase keys missing on this page.");
-        return;
-      }
-
-      const supabase = window.supabase.createClient(SB_URL, SB_ANON);
-
-      // Guard: if already logged in -> dashboard
-      async function guard(){
-        const { data } = await supabase.auth.getSession();
-        if(data?.session){
-          window.location.replace("dashboard.html");
-        }
-      }
-
-      async function login(){
-        const email = (document.getElementById("email").value || "").trim().toLowerCase();
-        const password = document.getElementById("password").value || "";
-
-        if(!email || !password) return show("Enter your email and password.");
-
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if(error) return show(error.message);
-
-        // confirm session
-        const { data } = await supabase.auth.getSession();
-        if(!data?.session) return show("Login session not saved. Check your Supabase Auth settings.");
-
-        window.location.replace("dashboard.html");
-      }
-
-      document.getElementById("loginBtn").addEventListener("click", login);
-      document.addEventListener("DOMContentLoaded", guard);
-
-      // optional links
-      document.getElementById("aboutLink").addEventListener("click", (e)=>{ e.preventDefault(); show("About page coming soon."); });
-      document.getElementById("helpLink").addEventListener("click", (e)=>{ e.preventDefault(); show("Support: contact admin for help."); });
-    })();
+    });
   </script>
 </body>
-  </html>
+</html>
