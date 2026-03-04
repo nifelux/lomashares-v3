@@ -1,453 +1,68 @@
-<!DOCTYPE html>
+<div id="notice"></div>
+
+<header class="topbar">
+  <div class="brand">LOMASHARES</div>
+  <div class="right">
+    <a class="btn ghost" style="padding:10px 12px" href="profile.html">Profile</a>
+  </div>
+</header>
+
+<footer class="footer">
+  <nav class="nav" id="bottomNav"></nav>
+</footer>
+
+<script type="module">
+  import "./config.js";
+  import "./supabase.js";
+  import "./ui.js";
+  import "./auth-guard.js";
+
+  const { svgHome, svgInvest, svgTeam, svgProfile } = window.LomaUI;
+  const page = (location.pathname.split("/").pop() || "dashboard.html").toLowerCase();
+  const nav = document.getElementById("bottomNav");
+  if(nav){
+    nav.innerHTML = `
+      <a href="dashboard.html" class="${page==='dashboard.html'?'active':''}">${svgHome()}Home</a>
+      <a href="investment.html" class="${page==='investment.html'?'active':''}">${svgInvest()}Invest</a>
+      <a href="team.html" class="${page==='team.html'?'active':''}">${svgTeam()}Team</a>
+      <a href="profile.html" class="${page==='profile.html'?'active':''}">${svgProfile()}Profile</a>
+    `;
+  }
+</script>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>LomaShares • Invest</title>
-  <link rel="stylesheet" href="styl.css" />
-
-  <style>
-    /* Mobile-only safety */
-    @media (min-width: 768px) {
-      body::before {
-        content: "Open on a mobile phone for the best experience.";
-        position: fixed; inset: 0;
-        display: grid; place-items: center;
-        background: #050a14;
-        color: rgba(230,240,255,.9);
-        font: 600 16px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Arial;
-        z-index: 9999;
-        padding: 24px;
-        text-align: center;
-      }
-    }
-
-    /* Page shell */
-    :root{
-      --bg: #050a14;
-      --card: rgba(255,255,255,.05);
-      --card2: rgba(0,0,0,.30);
-      --stroke: rgba(255,255,255,.08);
-      --stroke2: rgba(0,120,255,.20);
-      --text: rgba(230,240,255,.96);
-      --muted: rgba(230,240,255,.65);
-      --blue: #1b75ff;
-      --blue2:#0b3f9c;
-      --good:#00dc82;
-      --shadow: 0 18px 55px rgba(0,0,0,.45);
-    }
-
-    html,body{ height:100%; }
-    body{
-      margin:0;
-      background: radial-gradient(1200px 600px at 50% -10%, rgba(27,117,255,.22), transparent 60%),
-                  radial-gradient(900px 500px at 10% 20%, rgba(0,220,130,.10), transparent 55%),
-                  var(--bg);
-      color: var(--text);
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-    }
-
-    /* Topbar */
-    .topbar{
-      position: fixed; top: 0; left: 0; right: 0; z-index: 50;
-      height: 72px;
-      display:flex; align-items:center; justify-content:center;
-      background: linear-gradient(180deg, rgba(5,10,20,.96), rgba(5,10,20,.82));
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(255,255,255,.06);
-    }
-    .topbar .brand{
-      font-weight: 900;
-      letter-spacing: .14em;
-      font-size: 16px;
-      color: rgba(230,240,255,.96);
-    }
-    .topbar .sub{
-      margin-top: 4px;
-      font-size: 12px;
-      color: rgba(230,240,255,.65);
-      text-align:center;
-    }
-    .topbar .center{
-      text-align:center;
-      line-height: 1.1;
-    }
-
-    /* Main */
-    .page{
-      max-width: 520px;
-      margin: 0 auto;
-      padding: 88px 14px 92px;
-    }
-
-    .panel{
-      background: var(--card);
-      border: 1px solid var(--stroke);
-      border-radius: 18px;
-      box-shadow: var(--shadow);
-      overflow:hidden;
-    }
-
-    .hero{
-      padding: 14px;
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap: 12px;
-    }
-    .hero h1{
-      margin:0;
-      font-size: 16px;
-      font-weight: 900;
-      letter-spacing: .02em;
-    }
-    .hero p{
-      margin: 6px 0 0;
-      font-size: 12px;
-      color: var(--muted);
-      line-height: 1.4;
-    }
-    .pill{
-      display:inline-flex;
-      align-items:center;
-      gap: 8px;
-      padding: 8px 12px;
-      border-radius: 999px;
-      background: rgba(27,117,255,.14);
-      border: 1px solid rgba(27,117,255,.22);
-      color: rgba(230,240,255,.92);
-      font-size: 12px;
-      font-weight: 800;
-      white-space: nowrap;
-    }
-    .dot{
-      width: 8px; height: 8px; border-radius: 99px;
-      background: var(--good);
-      box-shadow: 0 0 0 4px rgba(0,220,130,.12);
-    }
-
-    .section-title{
-      margin: 18px 4px 10px;
-      font-weight: 900;
-      font-size: 13px;
-      letter-spacing: .02em;
-      color: rgba(230,240,255,.92);
-    }
-
-    /* Active investments list */
-    .active-wrap{ padding: 10px 12px 14px; }
-    .empty{
-      padding: 16px 12px;
-      border-radius: 14px;
-      background: rgba(255,255,255,.03);
-      border: 1px dashed rgba(255,255,255,.12);
-    }
-    .empty-title{ font-weight: 900; font-size: 13px; }
-    .empty-sub{ margin-top: 6px; color: var(--muted); font-size: 12px; }
-
-    .item{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap: 12px;
-      padding: 12px;
-      border-radius: 16px;
-      background: var(--card2);
-      border: 1px solid rgba(255,255,255,.08);
-      margin-top: 10px;
-    }
-    .item-title{ font-weight: 900; font-size: 13px; }
-    .item-sub{ margin-top: 6px; font-size: 12px; color: var(--muted); line-height: 1.35; }
-
-    .badge{
-      padding: 7px 10px;
-      border-radius: 999px;
-      font-size: 11px;
-      font-weight: 900;
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.06);
-      color: rgba(230,240,255,.9);
-      text-transform: capitalize;
-      white-space: nowrap;
-    }
-    .badge.active{ border-color: rgba(0,220,130,.22); background: rgba(0,220,130,.10); }
-    .badge.completed{ opacity:.8; }
-
-    /* Product grid */
-    #productsGrid{
-      display:grid;
-      gap: 12px;
-      padding: 12px;
-    }
-    .product-card{
-      border-radius: 18px;
-      background: rgba(255,255,255,.04);
-      border: 1px solid rgba(255,255,255,.08);
-      padding: 14px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.25);
-    }
-    .pc-top{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap: 10px;
-    }
-    .pc-title{
-      font-weight: 900;
-      font-size: 13px;
-      color: rgba(230,240,255,.95);
-    }
-    .pc-pill{
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-size: 11px;
-      font-weight: 900;
-      background: rgba(27,117,255,.14);
-      border: 1px solid rgba(27,117,255,.22);
-      color: rgba(230,240,255,.92);
-      white-space: nowrap;
-    }
-    .pc-amt{
-      margin-top: 10px;
-      font-size: 20px;
-      font-weight: 950;
-      letter-spacing: .02em;
-    }
-    .pc-meta{
-      margin-top: 10px;
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-    .pc-meta .muted{
-      color: var(--muted);
-      font-size: 11px;
-    }
-    .pc-meta strong{
-      display:block;
-      margin-top: 3px;
-      font-size: 13px;
-      color: rgba(230,240,255,.95);
-    }
-    .pc-tags{
-      margin-top: 10px;
-      display:flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-    .tag{
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-size: 11px;
-      font-weight: 800;
-      color: rgba(230,240,255,.88);
-      background: rgba(0,0,0,.28);
-      border: 1px solid rgba(255,255,255,.10);
-    }
-    .pc-actions{
-      margin-top: 12px;
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-    .btn{
-      border: none;
-      border-radius: 14px;
-      padding: 12px 12px;
-      font-weight: 950;
-      cursor:pointer;
-      text-align:center;
-      text-decoration:none;
-      user-select:none;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .btn.primary{
-      color: #fff;
-      background: linear-gradient(180deg, var(--blue), var(--blue2));
-      box-shadow: 0 14px 28px rgba(27,117,255,.20);
-    }
-    .btn.ghost{
-      color: rgba(230,240,255,.92);
-      background: rgba(255,255,255,.06);
-      border: 1px solid rgba(255,255,255,.10);
-      box-shadow: none;
-    }
-    .btn:active{ transform: translateY(1px); }
-
-    /* Toast/notice */
-    #notice{
-      position: fixed;
-      left: 50%;
-      transform: translateX(-50%);
-      bottom: 92px;
-      z-index: 70;
-      padding: 12px 14px;
-      border-radius: 14px;
-      background: rgba(0,0,0,.70);
-      border: 1px solid rgba(255,255,255,.10);
-      color: rgba(230,240,255,.95);
-      font-weight: 800;
-      font-size: 12px;
-      opacity: 0;
-      pointer-events:none;
-      transition: opacity .18s ease, transform .18s ease;
-      max-width: min(520px, calc(100% - 28px));
-      text-align:center;
-    }
-    #notice.show{
-      opacity: 1;
-      transform: translateX(-50%) translateY(-6px);
-    }
-
-    /* Footer */
-    .footer{
-      position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
-      height: 70px;
-      display:flex; justify-content:center;
-      background: rgba(5,10,20,.92);
-      border-top: 1px solid rgba(255,255,255,.06);
-      backdrop-filter: blur(10px);
-    }
-    .footer .nav{
-      width: min(520px, 100%);
-      display:flex;
-      align-items:center;
-      justify-content: space-around;
-      padding: 8px 10px;
-    }
-    .nav a{
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap: 6px;
-      padding: 10px 12px;
-      border-radius: 14px;
-      text-decoration:none;
-      color: rgba(230,240,255,.65);
-      font-size: 11px;
-      font-weight: 800;
-    }
-    .nav a.active{
-      color: rgba(230,240,255,.95);
-      background: rgba(27,117,255,.12);
-      border: 1px solid rgba(27,117,255,.18);
-    }
-    .ico{ width: 22px; height: 22px; }
-  </style>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>LomaShares • Investment</title>
+  <link rel="stylesheet" href="style.css"/>
 </head>
-
 <body>
-
-  <!-- Toast -->
   <div id="notice"></div>
 
-  <!-- Topbar -->
   <header class="topbar">
-    <div class="center">
-      <div class="brand">LOMASHARES</div>
-      <div class="sub">Investment Plans</div>
+    <div class="brand">LOMASHARES</div>
+    <div class="right">
+      <a class="btn ghost" style="padding:10px 12px" href="deposit.html">Deposit</a>
     </div>
   </header>
 
   <main class="page">
+    <div class="panel card">
+      <div class="small">Active investments</div>
+      <div id="activeList" class="muted" style="margin-top:10px">Loading…</div>
+    </div>
 
-    <section class="panel">
-      <div class="hero">
-        <div>
-          <h1>200% Return in 30 Days</h1>
-          <p>Choose a plan, invest from your wallet balance, and receive daily credits every 24 hours.</p>
-        </div>
-        <div class="pill"><span class="dot"></span> Auto Credit</div>
-      </div>
-    </section>
-
-    <h3 class="section-title">Active Investments</h3>
-    <section class="panel">
-      <div class="active-wrap" id="activeInvestments">
-        <!-- investment.js will render -->
-        <div class="empty">
-          <div class="empty-title">Loading…</div>
-          <div class="empty-sub">Please wait.</div>
-        </div>
-      </div>
-    </section>
-
-    <h3 class="section-title">Available Plans</h3>
-    <section class="panel">
-      <div id="productsGrid">
-        <!-- investment.js will render product cards -->
-      </div>
-    </section>
-
-    <div style="height:14px;"></div>
+    <div class="section-title">Choose a plan</div>
+    <div class="panel">
+      <div class="grid" id="productsGrid"></div>
+    </div>
   </main>
 
-  <!-- Footer -->
   <footer class="footer">
-    <nav class="nav">
-      <a href="dashboard.html">
-        <svg class="ico" viewBox="0 0 24 24" fill="none">
-          <path d="M10 20v-6h4v6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          <path d="M4 10.5 12 4l8 6.5V20a1.5 1.5 0 0 1-1.5 1.5H5.5A1.5 1.5 0 0 1 4 20v-9.5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-        </svg>
-        Home
-      </a>
-
-      <a class="active" href="investment.html">
-        <svg class="ico" viewBox="0 0 24 24" fill="none">
-          <path d="M4 19V5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          <path d="M8 17V9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          <path d="M12 19V7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          <path d="M16 17v-5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          <path d="M20 19V11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-        Invest
-      </a>
-
-      <a href="team.html">
-        <svg class="ico" viewBox="0 0 24 24" fill="none">
-          <path d="M16 11a4 4 0 1 0-8 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          <path d="M3 20c1.6-3.2 4.6-5 9-5s7.4 1.8 9 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-        Team
-      </a>
-
-      <a href="profile.html">
-        <svg class="ico" viewBox="0 0 24 24" fill="none">
-          <path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Z" stroke="currentColor" stroke-width="2"/>
-          <path d="M4 20c1.7-3.3 5-5 8-5s6.3 1.7 8 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-        Profile
-      </a>
-    </nav>
+    <nav class="nav" id="bottomNav"></nav>
   </footer>
 
-  <!-- Supabase bootstrap: must set window.lomaSupabase -->
-  <script type="module" src="supabase.js"></script>
-
-  <!-- Auth guard (prevents dashboard/login redirect loop) -->
-  <script type="module">
-    // Wait a moment for supabase.js to attach window.lomaSupabase
-    const wait = (ms) => new Promise(r => setTimeout(r, ms));
-
-    for (let i = 0; i < 25; i++) {
-      if (window.lomaSupabase) break;
-      await wait(80);
-    }
-
-    const sb = window.lomaSupabase;
-    if (!sb) {
-      alert("Supabase not loaded. Check supabase.js");
-      throw new Error("window.lomaSupabase missing");
-    }
-
-    const { data: { session } } = await sb.auth.getSession();
-    if (!session) {
-      window.location.replace("index.html");
-    }
-  </script>
-
-  <!-- Your existing investment logic -->
-  <script src="investment.js"></script>
+  <script type="module" src="investment.js"></script>
 </body>
   </html>
