@@ -1,100 +1,68 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>LomaShares — Register</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>LomaShares • Register</title>
+  <link rel="stylesheet" href="style.css"/>
 </head>
+<body>
+  <div id="notice"></div>
 
-<body class="app auth-page" data-page="register"
-  data-supabase-url="https://lpnnqxalmihxgszoifpa.supabase.co"
-  data-supabase-anon="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxwbm5xeGFsbWloeGdzem9pZnBhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE3MzM1ODEsImV4cCI6MjA4NzMwOTU4MX0.1hLW5gizjcPTKyfzx_XD9dxqegtXVQroNCclX1AaqZw">
-
-  <!-- Sticky Header -->
   <header class="topbar">
-    <button class="icon-btn" type="button" id="menuBtn" aria-label="Menu">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-      </svg>
-    </button>
-
-    <div class="brand">
-      <div class="brand-name">LOMASHARES</div>
-      <div class="brand-sub">Create Account</div>
+    <div class="brand">LOMASHARES</div>
+    <div class="right">
+      <a class="btn ghost" style="padding:10px 12px" href="index.html">Login</a>
     </div>
-
-    <a class="icon-btn" href="index.html" aria-label="Login">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <path d="M10 17l5-5-5-5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M4 12h11" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-      </svg>
-    </a>
   </header>
 
-  <!-- Slide Menu -->
-  <aside class="sheet" id="sheet" aria-hidden="true">
-    <div class="sheet-head">
-      <div class="sheet-title">Menu</div>
-      <button class="icon-btn" type="button" id="closeSheet" aria-label="Close">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-        </svg>
+  <main class="page">
+    <div class="panel card">
+      <div class="big">Create account</div>
+      <div class="muted" style="margin-top:6px">Start investing and earning daily.</div>
+
+      <div class="section-title">Email</div>
+      <input class="input" id="email" type="email" placeholder="you@example.com" autocomplete="email"/>
+
+      <div class="section-title">Password</div>
+      <input class="input" id="password" type="password" placeholder="Create password" autocomplete="new-password"/>
+
+      <div class="section-title">Referral Code (optional)</div>
+      <input class="input" id="ref" type="text" placeholder="LOMA123456"/>
+
+      <button class="btn primary" style="width:100%;margin-top:14px" id="regBtn" type="button">
+        Register
       </button>
+
+      <div class="muted" style="margin-top:12px;text-align:center">
+        Already have an account? <a href="index.html" style="color:#a8c8ff;font-weight:900;text-decoration:none">Login</a>
+      </div>
     </div>
-
-    <nav class="sheet-nav">
-      <a href="index.html" class="sheet-link">Login</a>
-      <a href="register.html" class="sheet-link active">Register</a>
-      <a href="about.html" class="sheet-link">About</a>
-    </nav>
-  </aside>
-  <div class="backdrop" id="backdrop" hidden></div>
-
-  <main class="main auth-main">
-    <section class="auth-card">
-      <div class="auth-logo">
-        <img src="YOUR_LOGO.png" alt="LomaShares" onerror="this.style.display='none'">
-        <div class="auth-logo-fallback">LS</div>
-      </div>
-
-      <h1 class="auth-title">Create account</h1>
-      <p class="auth-sub">Start investing and earning daily.</p>
-
-      <div class="form">
-        <label class="lbl">Email</label>
-        <input class="inp" type="email" id="email" placeholder="you@gmail.com" autocomplete="email" />
-
-        <label class="lbl">Referral Code (optional)</label>
-        <input class="inp" type="text" id="referral" placeholder="LOMA123456" maxlength="10" />
-        <div class="mini" id="refStatus">If you have a sponsor, enter their code.</div>
-
-        <label class="lbl">Password</label>
-        <input class="inp" type="password" id="password" placeholder="Create password" autocomplete="new-password" />
-
-        <label class="lbl">Confirm Password</label>
-        <input class="inp" type="password" id="confirm" placeholder="Confirm password" autocomplete="new-password" />
-
-        <button class="btn primary" id="registerBtn" type="button">Create Account</button>
-
-        <div class="row">
-          <a class="link" href="index.html">Already have an account? Login</a>
-        </div>
-
-        <div class="notice" id="msg" hidden></div>
-      </div>
-
-      <div class="auth-foot">
-        <div class="fine">
-          By creating an account, you accept our <b>Terms</b> and <b>Privacy Policy</b>.
-        </div>
-      </div>
-    </section>
-
-    <div class="spacer"></div>
   </main>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="auth.js"></script>
+  <script type="module">
+    import "./config.js";
+    import "./supabase.js";
+    import "./ui.js";
+    import "./auth-guard.js";
+    import "./auth.js";
+
+    const { toast } = window.LomaUI;
+
+    document.getElementById("regBtn").addEventListener("click", async ()=>{
+      const email = document.getElementById("email").value.trim().toLowerCase();
+      const password = document.getElementById("password").value.trim();
+      const referralCode = document.getElementById("ref").value.trim().toUpperCase();
+
+      if(!email || !password) return toast("Enter email and password");
+      if(password.length < 6) return toast("Password must be at least 6 characters");
+
+      try{
+        await window.LomaAuth.register(email, password, referralCode);
+      }catch(e){
+        toast(e?.message || "Registration failed");
+      }
+    });
+  </script>
 </body>
         </html>
