@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>LomaShares • Withdraw</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <div id="notice"></div>
+
+  <header class="topbar">
+    <div class="brand">LOMASHARES</div>
+    <div class="right">
+      <a class="btn ghost" style="padding:10px 12px" href="dashboard.html">Home</a>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="panel card">
+      <div class="big">Withdraw</div>
+      <div class="muted" style="margin-top:6px">Minimum withdrawal: ₦500</div>
+
+      <div class="section-title">Amount (₦)</div>
+      <input class="input" id="amount" inputmode="numeric" placeholder="e.g. 500"/>
+
+      <div class="section-title">Bank Name</div>
+      <input class="input" id="bankName" placeholder="e.g. Access Bank"/>
+
+      <div class="section-title">Account Number</div>
+      <input class="input" id="acctNo" inputmode="numeric" placeholder="10-digit account number"/>
+
+      <div class="section-title">Account Name</div>
+      <input class="input" id="acctName" placeholder="Account holder name"/>
+
+      <button class="btn primary" style="width:100%;margin-top:14px" id="wdBtn" type="button">
+        Request Withdrawal
+      </button>
+
+      <div class="section-title">Your recent withdrawals</div>
+      <div id="list" class="muted">Loading…</div>
+    </div>
+  </main>
+
+  <footer class="footer"><nav class="nav" id="bottomNav"></nav></footer>
+
+  <script type="module" src="withdraw.js"></script>
+</body>
+</html>
