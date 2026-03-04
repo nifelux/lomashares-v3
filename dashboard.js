@@ -1,313 +1,93 @@
-(function () {
-  "use strict";
+import "./config.js";
+import "./supabase.js";
+import "./ui.js";
+import "./auth-guard.js";
 
-  // ----------------------------
-  // Config (from body attributes)
-  // ----------------------------
-  const SB_URL = document.body.getAttribute("data-supabase-url");
-  const SB_ANON = document.body.getAttribute("data-supabase-anon");
+const sb = window.lomaSupabase;
+const { money, toast, svgHome, svgInvest, svgTeam, svgProfile } = window.LomaUI;
 
-  const elNotice = document.getElementById("notice");
-  const elWallet = document.getElementById("walletBalance");
-  const elEmail = document.getElementById("userEmail");
-  const elToday = document.getElementById("todayEarnings");
-  const elActive = document.getElementById("activePlans");
-  const elProducts = document.getElementById("products");
+const PRODUCTS = [
+  { id: 1, price: 3000 },
+  { id: 2, price: 5000 },
+  { id: 3, price: 10000 },
+  { id: 4, price: 30000 },
+  { id: 5, price: 100000 },
+  { id: 6, price: 200000 },
+  { id: 7, price: 300000 },
+  { id: 8, price: 400000 },
+  { id: 9, price: 500000 },
+  { id: 10, price: 1000000 },
+];
 
-  const btnLogout = document.getElementById("logoutBtn");
-  const btnRefresh = document.getElementById("refreshBtn");
-  const btnGoDeposit = document.getElementById("goDepositBtn");
+function dailyFromPrice(price){
+  const total = price * 2;            // 200% total return
+  return Math.round((total / 30) * 100) / 100; // per day
+}
 
-  const qlDeposit = document.getElementById("qlDeposit");
-  const qlWithdraw = document.getElementById("qlWithdraw");
-  const qlGift = document.getElementById("qlGift");
-  const qlRefer = document.getElementById("qlRefer");
+async function token(){
+  const { data: { session } } = await sb.auth.getSession();
+  return session?.access_token || null;
+}
 
-  // ----------------------------
-  // Helpers
-  // ----------------------------
-  function toast(msg) {
-    if (!elNotice) return alert(msg);
-    elNotice.textContent = msg;
-    elNotice.classList.add("show");
-    clearTimeout(window.__toastTimer);
-    window.__toastTimer = setTimeout(() => elNotice.classList.remove("show"), 3500);
-  }
+function mountNav(){
+  const nav = document.getElementById("bottomNav");
+  nav.innerHTML = `
+    <a class="active" href="dashboard.html">${svgHome()}Home</a>
+    <a href="investment.html">${svgInvest()}Invest</a>
+    <a href="team.html">${svgTeam()}Team</a>
+    <a href="profile.html">${svgProfile()}Profile</a>
+  `;
+}
 
-  function formatNaira(n) {
-    return "₦" + Number(n || 0).toLocaleString("en-NG");
-  }
+function renderProducts(){
+  const grid = document.getElementById("products");
+  if(!grid) return;
 
-  // ----------------------------
-  // Validate Supabase
-  // ----------------------------
-  if (!SB_URL || !SB_ANON) {
-    toast("Config error: missing Supabase keys on this page.");
-    return;
-  }
-  if (!window.supabase || !window.supabase.createClient) {
-    toast("Supabase library not loaded. Check the script tag.");
-    return;
-  }
-
-  const supabase = window.supabase.createClient(SB_URL, SB_ANON);
-
-  // ----------------------------
-  // Product list (leave as you chose)
-  // 200% total return in 30 days
-  // ----------------------------
-  const PRODUCTS = [
-    { id: 1, price: 3000 },
-    { id: 2, price: 5000 },
-    { id: 3, price: 7000 },
-    { id: 4, price: 10000 },
-    { id: 5, price: 15000 },
-    { id: 6, price: 20000 },
-    { id: 7, price: 30000 },
-    { id: 8, price: 40000 },
-    { id: 9, price: 50000 },
-    { id: 10, price: 100000 }
-  ];
-
-  // ----------------------------
-  // Auth Guard
-  // ----------------------------
-  async function requireSession() {
-    const { data, error } = await supabase.auth.getSession();
-    if (error) console.error(error);
-
-    const session = data?.session || null;
-    if (!session) {
-      window.location.replace("index.html");
-      return null;
-    }
-    return session;
-  }
-
-  // ----------------------------
-  // Load User Info
-  // ----------------------------
-  function renderUser(session) {
-    if (elEmail) elEmail.textContent = session?.user?.email || "User";
-  }
-
-  // ----------------------------
-  // Wallet API (POST /api/wallet)
-  // ----------------------------
-  async function loadWallet() {
-    const { data } = await supabase.auth.getSession();
-    const token = data?.session?.access_token;
-    if (!token) {
-      window.location.replace("index.html");
-      return;
-    }
-
-    try {
-      const r = await fetch("/api/wallet", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify({})
-      });
-
-      const j = await r.json().catch(() => ({}));
-      if (!r.ok) throw new Error(j.error || "Wallet API error");
-
-      if (elWallet) elWallet.textContent = formatNaira(j.balance);
-    } catch (e) {
-      toast("Network error while fetching wallet.");
-      console.error(e);
-    }
-  }
-
-  // ----------------------------
-  // Optional stats from Supabase tables
-  // - Active plans: investments where status='active'
-  // - Today earnings: transactions where type='daily_income' today
-  // If these tables not ready, it won't crash.
-  // ----------------------------
-  async function loadStats(session) {
-    try {
-      // Active Investments
-      const { data: invs, error: invErr } = await supabase
-        .from("investments")
-        .select("id,status")
-        .eq("user_id", session.user.id);
-
-      if (!invErr && elActive) {
-        const active = (invs || []).filter(x => x.status === "active").length;
-        elActive.textContent = String(active);
-      }
-
-      // Today's daily_income sum
-      const start = new Date();
-      start.setHours(0, 0, 0, 0);
-
-      const { data: txs, error: txErr } = await supabase
-        .from("transactions")
-        .select("amount,type,created_at")
-        .eq("user_id", session.user.id)
-        .eq("type", "daily_income")
-        .gte("created_at", start.toISOString());
-
-      if (!txErr && elToday) {
-        const sum = (txs || []).reduce((a, t) => a + Number(t.amount || 0), 0);
-        elToday.textContent = formatNaira(sum);
-      }
-    } catch (e) {
-      // Silent fail – dashboard still works
-      console.warn("Stats load skipped:", e.message);
-    }
-  }
-
-  // ----------------------------
-  // Render Products UI
-  // ----------------------------
-  function renderProducts() {
-    if (!elProducts) return;
-
-    elProducts.innerHTML = "";
-
-    PRODUCTS.forEach(p => {
-      const totalReturn = p.price * 2;    // 200%
-      const daily = totalReturn / 30;
-
-      const card = document.createElement("div");
-      card.className = "card pcard";
-      card.innerHTML = `
-        <div class="phead">
-          <div style="width:100%;">
-            <div class="ptitle">Product ${p.id}</div>
-            <div class="pmeta">
-              <span class="price">${formatNaira(p.price)}</span><br>
-              Daily Income: <b>${formatNaira(Math.floor(daily))}</b><br>
-              Duration: <b>30 days</b> • Total Return: <b>${formatNaira(totalReturn)}</b>
-            </div>
-            <div class="tag">200% ROI • Automatic Daily Credit</div>
-          </div>
+  grid.innerHTML = PRODUCTS.map(p=>{
+    const daily = dailyFromPrice(p.price);
+    return `
+      <div class="product">
+        <div class="top">
+          <div style="font-weight:950">Plan ${p.id}</div>
+          <div class="pill">30 Days • 200%</div>
         </div>
-
-        <div class="pactions">
-          <button class="primary" onclick="investonclick">Invest Now</button>
-          <button type="button" data-deposit="1">Deposit</button>
+        <div class="amt">${money(p.price)}</div>
+        <div class="meta">
+          <div><div class="muted">Daily Income</div><div style="font-weight:950">${money(daily)}</div></div>
+          <div><div class="muted">Total Return</div><div style="font-weight:950">${money(p.price*2)}</div></div>
         </div>
-      `;
+        <div class="actions">
+          <a class="btn primary" href="investment.html">View & Invest</a>
+          <a class="btn ghost" href="deposit.html">Deposit</a>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
 
-      elProducts.appendChild(card);
-    });
+async function loadUserLine(){
+  const emailLine = document.getElementById("emailLine");
+  const { data: { user } } = await sb.auth.getUser();
+  if(!user) return (emailLine.textContent = "Not logged in");
+  emailLine.textContent = user.email;
+}
 
-    // Bind deposit buttons
-    elProducts.querySelectorAll("button[data-deposit]").forEach(btn => {
-      btn.addEventListener("click", () => window.location.href = "deposit.html");
-    });
+async function loadBalance(){
+  const t = await token();
+  if(!t) return;
 
-    // Bind invest buttons
-    elProducts.querySelectorAll("button[data-invest]").forEach(btn => {
-      btn.addEventListener("click", () => invest(Number(btn.getAttribute("data-invest"))));
-    });
-  }
-
-  // ----------------------------
-  // Invest API call (POST /api/investment)
-  // ----------------------------
-  async function invest(productId) {
-    const { data } = await supabase.auth.getSession();
-    const token = data?.session?.access_token;
-
-    if (!token) {
-      toast("Session expired. Login again.");
-      window.location.replace("index.html");
-      return;
-    }
-
-    // UI loading state
-    const btn = document.querySelector(`button[data-invest="${productId}"]`);
-    const oldText = btn ? btn.textContent : "";
-    if (btn) {
-      btn.disabled = true;
-      btn.textContent = "Processing…";
-    }
-
-    try {
-      const r = await fetch("/api/investment", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify({ product_id: productId })
-      });
-
-      const j = await r.json().catch(() => ({}));
-      if (!r.ok) throw new Error(j.error || "Investment failed");
-
-      if (j.ok) {
-        toast(`Investment successful! Daily: ${formatNaira(j.daily_income)} for ${j.days_total} days.`);
-        await loadWallet();
-        const session = await requireSession();
-        if (session) await loadStats(session);
-      } else {
-        toast(j.error || "Investment failed");
-      }
-    } catch (e) {
-      toast(e.message || "Network error. Try again.");
-      console.error(e);
-    } finally {
-      if (btn) {
-        btn.disabled = false;
-        btn.textContent = oldText;
-      }
-    }
-  }
-
-  // ----------------------------
-  // Logout
-  // ----------------------------
-  async function logout() {
-    await supabase.auth.signOut();
-    window.location.replace("index.html");
-  }
-
-  // ----------------------------
-  // Navigation quick links
-  // ----------------------------
-  function bindLinks() {
-    if (qlDeposit) qlDeposit.addEventListener("click", () => location.href = "deposit.html");
-    if (qlWithdraw) qlWithdraw.addEventListener("click", () => location.href = "withdraw.html");
-    if (qlGift) qlGift.addEventListener("click", () => location.href = "gift.html");
-    if (qlRefer) qlRefer.addEventListener("click", () => location.href = "refer.html");
-    if (btnGoDeposit) btnGoDeposit.addEventListener("click", () => location.href = "deposit.html");
-  }
-
-  // ----------------------------
-  // Refresh button
-  // ----------------------------
-  async function refresh() {
-    const session = await requireSession();
-    if (!session) return;
-    await loadWallet();
-    await loadStats(session);
-    toast("Updated.");
-  }
-
-  // ----------------------------
-  // Init
-  // ----------------------------
-  document.addEventListener("DOMContentLoaded", async () => {
-    const session = await requireSession();
-    if (!session) return;
-
-    renderUser(session);
-    bindLinks();
-    renderProducts();
-
-    if (btnLogout) btnLogout.addEventListener("click", logout);
-    if (btnRefresh) btnRefresh.addEventListener("click", refresh);
-
-    await loadWallet();
-    await loadStats(session);
+  const res = await fetch("/api/wallet", {
+    method:"POST",
+    headers:{ "Content-Type":"application/json", "Authorization":`Bearer ${t}` },
+    body: JSON.stringify({ action:"balance" })
   });
 
-})();
+  const data = await res.json().catch(()=>({}));
+  if(!res.ok || !data.ok) return toast(data.error || "Failed to load wallet");
+  document.getElementById("bal").textContent = money(data.balance || 0);
+}
+
+mountNav();
+renderProducts();
+loadUserLine();
+loadBalance();
