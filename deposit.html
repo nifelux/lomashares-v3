@@ -1,209 +1,51 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>LomaShares — Deposit</title>
-
-  <link rel="stylesheet" href="style.css" />
-
-  <!-- Supabase UMD must load before auth.js/auth-guard.js -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <!-- Your existing scripts -->
-  <script src="config.js"></script>
-  <script src="supabase-client.js"></script>
-  <script src="auth.js"></script>
-  <script src="auth-guard.js"></script>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>LomaShares • Deposit</title>
+  <link rel="stylesheet" href="style.css"/>
 </head>
+<body>
+  <div id="notice"></div>
 
-<body
-  data-page="deposit"
-  data-supabase-url="https://lpnnqxalmihxgszoifpa.supabase.co"
-  data-supabase-anon="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxwbm5xeGFsbWloeGdzem9pZnBhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE3MzM1ODEsImV4cCI6MjA4NzMwOTU4MX0.1hLW5gizjcPTKyfzx_XD9dxqegtXVQroNCclX1AaqZw"
->
   <header class="topbar">
-    <div class="topbar-left">
-      <a class="brand" href="dashboard.html">LomaShares</a>
-      <span class="muted">Deposit</span>
-    </div>
-
-    <div class="topbar-right">
-      <a class="btn btn-ghost" href="dashboard.html">Dashboard</a>
-      <a class="btn btn-ghost" href="investment.html">Investment</a>
-      <a class="btn btn-ghost" href="refer.html">Refer</a>
-      <a class="btn btn-ghost" href="team.html">Team</a>
-      <button class="btn btn-danger" id="logoutBtn" type="button">Logout</button>
+    <div class="brand">LOMASHARES</div>
+    <div class="right">
+      <a class="btn ghost" style="padding:10px 12px" href="dashboard.html">Home</a>
     </div>
   </header>
 
-  <main class="container">
-    <section class="card">
-      <div class="card-head">
-        <h1 class="h3">Deposit Funds</h1>
-        <p class="muted">You will be redirected to Paystack. After successful payment, Paystack returns you back to LomaShares automatically.</p>
+  <main class="page">
+    <div class="panel card">
+      <div class="big">Deposit</div>
+      <div class="muted" style="margin-top:6px">Fund your wallet with Paystack (redirect flow).</div>
+
+      <div class="section-title">Amount (₦)</div>
+      <input class="input" id="amount" inputmode="numeric" placeholder="Minimum ₦1,000"/>
+
+      <div class="section-title">Quick Amount</div>
+      <div class="row" style="flex-wrap:wrap">
+        <button class="btn ghost" data-a="1000" type="button">₦1,000</button>
+        <button class="btn ghost" data-a="5000" type="button">₦5,000</button>
+        <button class="btn ghost" data-a="10000" type="button">₦10,000</button>
+        <button class="btn ghost" data-a="30000" type="button">₦30,000</button>
+        <button class="btn ghost" data-a="50000" type="button">₦50,000</button>
+        <button class="btn ghost" data-a="100000" type="button">₦100,000</button>
       </div>
 
-      <div class="grid-2">
-        <!-- Left -->
-        <div>
-          <div class="card mini">
-            <h3 class="h4">Wallet Balance</h3>
-            <div class="big-number" id="balanceText">₦0</div>
-            <p class="muted small" id="userText">Loading…</p>
-          </div>
+      <button class="btn primary" style="width:100%;margin-top:14px" id="payBtn" type="button">
+        Proceed to Paystack
+      </button>
 
-          <div class="spacer"></div>
-
-          <form id="depositForm" class="card mini form">
-            <h3 class="h4">Paystack Deposit</h3>
-
-            <label class="label">Email</label>
-            <input class="input" id="email" type="email" placeholder="you@email.com" required />
-
-            <label class="label">Amount (₦)</label>
-            <input class="input" id="amount" type="number" min="100" step="50" placeholder="5000" required />
-
-            <button class="btn btn-primary" id="depositBtn" type="submit">Continue to Paystack</button>
-
-            <div id="msg" class="msg" style="display:none;"></div>
-          </form>
-        </div>
-
-        <!-- Right -->
-        <div>
-          <div class="card mini">
-            <h3 class="h4">How it works</h3>
-            <div class="muted">
-              <p>1) Enter email + amount.</p>
-              <p>2) We request Paystack checkout link from your backend.</p>
-              <p>3) You pay on Paystack.</p>
-              <p>4) Paystack redirects back to <strong>deposit-success.html</strong>.</p>
-              <p>5) The success page verifies and credits your wallet.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+      <div class="muted" style="margin-top:10px" id="statusLine"></div>
+    </div>
   </main>
 
-  <script>
-    const $ = (id) => document.getElementById(id);
+  <footer class="footer">
+    <nav class="nav" id="bottomNav"></nav>
+  </footer>
 
-    function showMsg(text, type="error") {
-      const el = $("msg");
-      el.style.display = "block";
-      el.className = `msg ${type}`;
-      el.textContent = text;
-    }
-    function hideMsg() {
-      const el = $("msg");
-      el.style.display = "none";
-      el.textContent = "";
-    }
-    function money(n) {
-      const num = Number(n);
-      if (!Number.isFinite(num)) return "₦0";
-      return "₦" + num.toLocaleString("en-NG");
-    }
-
-    // Use your global client if available, otherwise create from body dataset
-    function getSupabase() {
-      if (window.lomaSupabase) return window.lomaSupabase;
-
-      const SB_URL = document.body.getAttribute("data-supabase-url");
-      const SB_ANON = document.body.getAttribute("data-supabase-anon");
-      return window.supabase.createClient(SB_URL, SB_ANON);
-    }
-
-    const sb = getSupabase();
-
-    document.getElementById("logoutBtn").addEventListener("click", () => {
-      if (window.lomaLogout) window.lomaLogout();
-      else window.location.replace("index.html");
-    });
-
-    async function getUser() {
-      const { data, error } = await sb.auth.getUser();
-      if (error) return null;
-      return data?.user || null;
-    }
-
-    async function loadBalance(user_id) {
-      try {
-        const r = await fetch("/api/wallet", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "get", user_id })
-        });
-        const data = await r.json();
-        if (r.ok && !data.error) $("balanceText").textContent = money(data.balance ?? 0);
-      } catch {}
-    }
-
-    // Init
-    (async () => {
-      const user = await getUser();
-      if (!user?.id) return; // auth-guard will redirect
-      $("userText").textContent = `User: ${user.email || user.id}`;
-      if (user.email) $("email").value = user.email;
-      await loadBalance(user.id);
-    })();
-
-    // Deposit => init => redirect to Paystack
-    $("depositForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      hideMsg();
-
-      const user = await getUser();
-      if (!user?.id) return window.location.replace("index.html");
-
-      const email = ($("email").value || "").trim().toLowerCase();
-      const amount = Number($("amount").value || 0);
-
-      if (!email) return showMsg("Email required.");
-      if (!amount || amount < 100) return showMsg("Minimum deposit is ₦100.");
-
-      $("depositBtn").disabled = true;
-      $("depositBtn").textContent = "Redirecting…";
-
-      const callback_url = `${window.location.origin}/deposit-success.html`;
-
-      try {
-        const r = await fetch("/api/wallet", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            action: "paystack_init",
-            user_id: user.id,
-            email,
-            amount,
-            callback_url
-          })
-        });
-
-        const data = await r.json();
-
-        if (!r.ok || data?.error) {
-          $("depositBtn").disabled = false;
-          $("depositBtn").textContent = "Continue to Paystack";
-          return showMsg(data?.error || "Failed to initialize Paystack deposit.");
-        }
-
-        if (!data.authorization_url) {
-          $("depositBtn").disabled = false;
-          $("depositBtn").textContent = "Continue to Paystack";
-          return showMsg("Server did not return Paystack authorization_url.");
-        }
-
-        window.location.href = data.authorization_url;
-      } catch (err) {
-        console.error(err);
-        $("depositBtn").disabled = false;
-        $("depositBtn").textContent = "Continue to Paystack";
-        showMsg("Network error. Please try again.");
-      }
-    });
-  </script>
+  <script type="module" src="deposit.js"></script>
 </body>
-  </html>
+</html>
