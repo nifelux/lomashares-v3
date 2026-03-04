@@ -1,10 +1,25 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+(function () {
+  "use strict";
 
-const cfg = window.LOMA_CONFIG;
-if (!cfg?.SUPABASE_URL || !cfg?.SUPABASE_ANON) {
-  console.error("Missing SUPABASE config in config.js");
-}
+  async function init() {
+    // Load config from backend
+    const r = await fetch("/api/public-config");
+    const cfg = await r.json();
 
-window.lomaSupabase = createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON, {
-  auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
-});
+    if (!cfg?.supabaseUrl || !cfg?.supabaseAnon) {
+      console.error("Missing public config:", cfg);
+      return;
+    }
+
+    // Load Supabase SDK (CDN)
+    if (!window.supabase) {
+      console.error("Supabase CDN not loaded");
+      return;
+    }
+
+    window.lomaSupabase = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnon);
+    window.dispatchEvent(new Event("loma:supabase-ready"));
+  }
+
+  init();
+})();
