@@ -1,124 +1,48 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>LomaShares • Refer</title>
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
-  <div class="app">
+  <div id="notice"></div>
 
-    <!-- Header -->
-    <header class="header">
-      <div class="header-inner">
-        <div class="header-left">
-          <a class="icon-btn" href="dashboard.html" aria-label="Back">
-            <svg class="navicon" viewBox="0 0 24 24" fill="none">
-              <path d="M15 18l-6-6 6-6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </a>
-        </div>
+  <header class="topbar">
+    <div class="brand">LOMASHARES</div>
+  </header>
 
-        <div class="brand">
-          <div class="brand-badge"></div>
-          <div class="brand-name">LOMASHARES</div>
-        </div>
+  <main class="page">
+    <div class="panel card">
+      <div class="big">Invite & Earn</div>
+      <div class="muted" style="margin-top:8px">
+        Share your referral code. When your referred user invests, you earn rewards.
+      </div>
 
-        <div class="header-right">
-          <a class="icon-btn" href="team.html" aria-label="Team">
-            <svg class="navicon" viewBox="0 0 24 24" fill="none">
-              <path d="M17 21a5 5 0 0 0-10 0" stroke="white" stroke-width="2" stroke-linecap="round"/>
-              <path d="M12 11a4 4 0 1 0-4-4 4 4 0 0 0 4 4Z" stroke="white" stroke-width="2"/>
-            </svg>
-          </a>
+      <div class="section-title">Your referral code</div>
+      <div class="panel card" style="margin-top:10px">
+        <div id="refCode" class="big">Loading…</div>
+        <div class="muted">Tap copy to share with friends.</div>
+        <div class="row" style="margin-top:12px">
+          <button class="btn primary" id="copyBtn" type="button" style="flex:1">Copy</button>
+          <a class="btn ghost" href="register.html" style="flex:1">Register Link</a>
         </div>
       </div>
-    </header>
 
-    <section class="section">
-      <div class="card">
-        <div class="kpi">
-          <div>
-            <div class="label">Available Balance</div>
-            <div class="value" id="walletBalance">₦0</div>
-            <div class="sub" style="margin-top:6px">Invite friends and earn <b>10%</b> of their investment amount.</div>
-          </div>
-          <div class="pill">Refer</div>
-        </div>
+      <div class="section-title">How it works</div>
+      <div class="muted">
+        1) Friend registers with your code<br/>
+        2) Friend invests<br/>
+        3) Bonus is applied automatically based on backend rules
       </div>
-    </section>
-
-    <section class="section">
-      <div class="h1">Your Referral Code</div>
-      <div class="sub">Share your code or link. Bonus is credited automatically when your referral invests.</div>
-
-      <div class="card" style="margin-top:12px">
-        <div class="sub" style="margin-bottom:8px">Referral Code</div>
-        <div class="row">
-          <input class="input" id="refCode" readonly placeholder="Loading..." />
-          <button class="btn primary" id="copyCodeBtn" type="button">Copy</button>
-        </div>
-
-        <div class="sub" style="margin:14px 0 8px">Referral Link</div>
-        <div class="row">
-          <input class="input" id="refLink" readonly placeholder="Loading..." />
-          <button class="btn" id="copyLinkBtn" type="button">Copy</button>
-        </div>
-
-        <div style="margin-top:14px; display:grid; grid-template-columns:1fr 1fr; gap:10px">
-          <button class="btn primary" id="shareWhatsApp" type="button">Share WhatsApp</button>
-          <button class="btn" id="shareTelegram" type="button">Share Telegram</button>
-        </div>
-      </div>
-    </section>
-  </div>
-
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="footer-inner">
-      <a class="navbtn" href="dashboard.html">
-        <svg class="navicon" viewBox="0 0 24 24" fill="none">
-          <path d="M3 10.5 12 3l9 7.5V21a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V10.5Z" stroke="white" stroke-width="2" stroke-linejoin="round"/>
-        </svg>
-        <div>Home</div>
-      </a>
-
-      <a class="navbtn" href="investment.html">
-        <svg class="navicon" viewBox="0 0 24 24" fill="none">
-          <path d="M4 19V5M4 19h16M8 16V9M12 16V7M16 16v-4" stroke="white" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-        <div>Invest</div>
-      </a>
-
-      <a class="navbtn" href="team.html">
-        <svg class="navicon" viewBox="0 0 24 24" fill="none">
-          <path d="M17 21a5 5 0 0 0-10 0" stroke="white" stroke-width="2" stroke-linecap="round"/>
-          <path d="M12 11a4 4 0 1 0-4-4 4 4 0 0 0 4 4Z" stroke="white" stroke-width="2"/>
-          <path d="M20 21a4 4 0 0 0-5-3.87" stroke="white" stroke-width="2" stroke-linecap="round"/>
-          <path d="M17 7a3 3 0 1 0 0-6" stroke="white" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-        <div>Team</div>
-      </a>
-
-      <a class="navbtn" href="profile.html">
-        <svg class="navicon" viewBox="0 0 24 24" fill="none">
-          <path d="M20 21a8 8 0 0 0-16 0" stroke="white" stroke-width="2" stroke-linecap="round"/>
-          <path d="M12 11a4 4 0 1 0-4-4 4 4 0 0 0 4 4Z" stroke="white" stroke-width="2"/>
-        </svg>
-        <div>Profile</div>
-      </a>
     </div>
+  </main>
+
+  <footer class="footer">
+    <nav class="nav" id="bottomNav"></nav>
   </footer>
 
-  <div class="toast" id="notice">...</div>
-
-  <!-- Scripts -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script src="config.js"></script>
-  <script src="supabase-client.js"></script>
-  <script src="auth-guard.js"></script>
-  <script src="wallet-balance.js"></script>
-  <script src="refer.js"></script>
+  <script type="module" src="refer.js"></script>
 </body>
-            </html>
+  </html>
