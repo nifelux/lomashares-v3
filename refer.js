@@ -1,55 +1,43 @@
-// refer.js
-(async function () {
-  const sb = window.lomaSupabase;
-  if (!sb) return;
+import "./config.js";
+import "./supabase.js";
+import "./ui.js";
+import "./auth-guard.js";
 
-  const codeEl = document.getElementById("refCode");
-  const linkEl = document.getElementById("refLink");
-  const notice = document.getElementById("notice");
+const sb = window.lomaSupabase;
+const { toast, svgHome, svgInvest, svgTeam, svgProfile } = window.LomaUI;
 
-  const toast = (msg) => {
-    if (!notice) return;
-    notice.textContent = msg;
-    notice.classList.add("show");
-    setTimeout(() => notice.classList.remove("show"), 2400);
-  };
+function mountNav(){
+  const nav = document.getElementById("bottomNav");
+  nav.innerHTML = `
+    <a href="dashboard.html">${svgHome()}Home</a>
+    <a href="investment.html">${svgInvest()}Invest</a>
+    <a href="team.html">${svgTeam()}Team</a>
+    <a href="profile.html">${svgProfile()}Profile</a>
+  `;
+}
 
-  const { data: { session } } = await sb.auth.getSession();
-  if (!session) return;
+async function loadReferral(){
+  const el = document.getElementById("refCode");
+  const { data: { user } } = await sb.auth.getUser();
+  if(!user) return (el.textContent = "Not logged in");
 
-  const { data, error } = await sb
-    .from("profiles")
-    .select("referral_code")
-    .eq("id", session.user.id)
-    .single();
-
-  if (error || !data?.referral_code) {
-    console.warn("profiles referral_code error:", error);
-    toast("Referral code not available.");
+  // Try profiles table (recommended)
+  const { data, error } = await sb.from("profiles").select("referral_code").eq("id", user.id).single();
+  if(error || !data?.referral_code){
+    el.textContent = "LOMA000000";
     return;
   }
+  el.textContent = data.referral_code;
 
-  const code = String(data.referral_code).toUpperCase();
-  const link = `${location.origin}/register.html?ref=${encodeURIComponent(code)}`;
+  document.getElementById("copyBtn").onclick = async () => {
+    try{
+      await navigator.clipboard.writeText(data.referral_code);
+      toast("Copied!");
+    }catch{
+      toast("Copy failed. Long-press to copy.");
+    }
+  };
+}
 
-  if (codeEl) codeEl.value = code;
-  if (linkEl) linkEl.value = link;
-
-  async function copyText(text) {
-    try { await navigator.clipboard.writeText(text); toast("Copied!"); }
-    catch { toast("Copy failed"); }
-  }
-
-  document.getElementById("copyCodeBtn")?.addEventListener("click", () => copyText(code));
-  document.getElementById("copyLinkBtn")?.addEventListener("click", () => copyText(link));
-
-  document.getElementById("shareWhatsApp")?.addEventListener("click", () => {
-    const msg = encodeURIComponent(`Join LomaShares and earn daily! Use my referral link: ${link}`);
-    window.open(`https://wa.me/?text=${msg}`, "_blank");
-  });
-
-  document.getElementById("shareTelegram")?.addEventListener("click", () => {
-    const msg = encodeURIComponent(`Join LomaShares and earn daily! Use my referral link: ${link}`);
-    window.open(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${msg}`, "_blank");
-  });
-})();
+mountNav();
+loadReferral();
